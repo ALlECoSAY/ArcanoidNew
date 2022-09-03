@@ -22,12 +22,26 @@ void RectangleShape::Move(float* velocityX, float* velocityY, unsigned int timeT
 
 	_x += v * vX * timeTicks;
 	_y += v * vY * timeTicks;
-	if (CollisionManager::isCollidingBorders(this)) {
-		_x = _x - _width/2 < CollisionManager::xPlayground ? CollisionManager::xPlayground + _width/2 :
-			_x + _width/2 > CollisionManager::xPlayground + CollisionManager::playgroundWidth ? CollisionManager::xPlayground + CollisionManager::playgroundWidth - _width/2 :
-				_x;
-		_y = _y - _height/2 < CollisionManager::yPlayground ? CollisionManager::yPlayground + _height/2 :
-			_y + _height/2 > CollisionManager::yPlayground + CollisionManager::playgroundHeight ? CollisionManager::yPlayground + CollisionManager::playgroundHeight - _height/2 :
+
+	CollisionType t = CollisionManager::isCollidingBorders(this);
+	switch (t)
+	{
+		case HORIZONTAL:
+			*velocityX = -vX;
+			break;
+		case VERTICAL:
+			*velocityY = -vY;
+			break;
+		case NONE:
+		default:
+			break;
+	}
+	if (t!=NONE) {
+		_x = _x - _width / 2 < CollisionManager::xPlayground ? CollisionManager::xPlayground + _width / 2 :
+			_x + _width / 2 > CollisionManager::xPlayground + CollisionManager::playgroundWidth ? CollisionManager::xPlayground + CollisionManager::playgroundWidth - _width / 2 :
+			_x;
+		_y = _y - _height / 2 < CollisionManager::yPlayground ? CollisionManager::yPlayground + _height / 2 :
+			_y + _height / 2 > CollisionManager::yPlayground + CollisionManager::playgroundHeight ? CollisionManager::yPlayground + CollisionManager::playgroundHeight - _height / 2 :
 			_y;
 	}
 };

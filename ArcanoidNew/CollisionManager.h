@@ -1,13 +1,19 @@
 #pragma once
+enum CollisionType
+{
+	HORIZONTAL,
+	VERTICAL,
+	NONE
+};
 
 class CollisionManager
 {
 public:
 	template< typename _T, typename _M>
-	static bool areColliding(_T, _M);
+	static CollisionType areColliding(_T, _M);
 
 	template< typename _T >
-	static bool isCollidingBorders(_T);
+	static CollisionType isCollidingBorders(_T);
 
 	static int
 		xPlayground,
@@ -16,9 +22,3 @@ public:
 		playgroundHeight;
 };
 
-enum CollisionType
-{
-	HORIZONTAL,
-	VERTICAL,
-	NONE
-};

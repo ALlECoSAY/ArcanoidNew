@@ -11,30 +11,32 @@ int
 
 
 template<>
-bool CollisionManager::areColliding(RectangleShape* r, RectangleShape* r2)
+CollisionType CollisionManager::areColliding(RectangleShape* r1, RectangleShape* r2)
 {
-	float dx = fabs(r->_x - r2->_x);
-	float dy = fabs(r->_y - r2->_y);
-	if (dx < (r->_width + r2->_width) / 2 && dy < (r->_height + r2->_height) / 2) return true;
-
-	return false;
+	float dx = fabs(r1->_x - r2->_x);
+	float dy = fabs(r1->_y - r2->_y);
+	if (!(dx < (r1->_width + r2->_width) / 2 && dy < (r1->_height + r2->_height) / 2)) return NONE;
+	dx = (r1->_width + r2->_width) / 2 - dx;
+	dy = (r1->_height + r2->_height) / 2 - dy;
+	if (dy < dx) return VERTICAL;
+	return HORIZONTAL;
 };
 
 template<>
-bool CollisionManager::areColliding(CircleShape c1, CircleShape c2)
+CollisionType CollisionManager::areColliding(CircleShape* c1, CircleShape* c2)
 {
-	return true;
+	return NONE;
 };
 
 template<>
-bool CollisionManager::areColliding(CircleShape c, RectangleShape r2)
+CollisionType CollisionManager::areColliding(CircleShape* c, RectangleShape* r2)
 {
 
-	return true;
+	return NONE;
 };
 
 template<>
-bool CollisionManager::areColliding(RectangleShape r, CircleShape c)
+CollisionType CollisionManager::areColliding(RectangleShape* r, CircleShape* c)
 {
 	return CollisionManager::areColliding(r, c);
 };
@@ -50,24 +52,23 @@ bool CollisionManager::areColliding(RectangleShape r, CircleShape c)
 
 
 template<>
-bool CollisionManager::isCollidingBorders(RectangleShape* r) {
-	if (r->_x - r->_width/2 < xPlayground)						return true;
-	if (r->_x + r->_width/2 > xPlayground + playgroundWidth)	return true;
-	if (r->_y - r->_height/2 < yPlayground)						return true;
-	if (r->_y + r->_height/2 > yPlayground + playgroundHeight)	return true;
+CollisionType CollisionManager::isCollidingBorders(RectangleShape* r) {
+	if (r->_x - r->_width/2 < xPlayground)						return HORIZONTAL;
+	if (r->_x + r->_width/2 > xPlayground + playgroundWidth)	return HORIZONTAL;
+	if (r->_y - r->_height/2 < yPlayground)						return VERTICAL;
+	if (r->_y + r->_height/2 > yPlayground + playgroundHeight)	return VERTICAL;
 	
-	return false;
+	return NONE;
 };
 
 
 template<>
-bool CollisionManager::isCollidingBorders(CircleShape* c) {
-	if (c->_x - c->_radius / 2 < xPlayground)						return true;
-	if (c->_x + c->_radius / 2 > xPlayground + playgroundWidth)		return true;
-	if (c->_y - c->_radius / 2 < yPlayground)						return true;
-	if (c->_y + c->_radius / 2 > yPlayground + playgroundHeight)	return true;
+CollisionType CollisionManager::isCollidingBorders(CircleShape* c) {
+	if (c->_x - c->_radius / 2 < xPlayground)						return HORIZONTAL;
+	if (c->_x + c->_radius / 2 > xPlayground + playgroundWidth)		return HORIZONTAL;
+	if (c->_y - c->_radius / 2 < yPlayground)						return VERTICAL;
+	if (c->_y + c->_radius / 2 > yPlayground + playgroundHeight)	return VERTICAL;
 
-	return false;
-	return true;
+	return NONE;
 };
 

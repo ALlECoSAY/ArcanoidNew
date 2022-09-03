@@ -58,7 +58,7 @@ class MyFramework : public Framework {
 		trampolineX = playgroundWidth / 2,
 		trampolineY = playgroundHeight - 50,
 		trampolineVelocity = 0.75,
-		ballVelocity = trampolineVelocity * 2,
+		ballVelocity = trampolineVelocity * 1.2,
 
 		ballVelocityX = -0.5,
 		ballVelocityY = -0.5,
@@ -72,7 +72,7 @@ class MyFramework : public Framework {
 		* rightWallSprite,
 		* ballSprite;
 
-	IShape
+	RectangleShape
 		* trampolin,
 		* ball;
 
@@ -125,7 +125,7 @@ public:
 		deltaTime = tickTime;
 		tickTime = getTickCount();//time ticks
 		deltaTime = tickTime - deltaTime;
-
+		deltaTime = 20;
 		drawTestBackground();
 
 		updateTrampoline();
@@ -148,13 +148,13 @@ public:
 
 		if (button == FRMouseButton::LEFT) leftMouseButtonPressed = !isReleased;
 		if (button == FRMouseButton::RIGHT) {
-			float
+			/*float
 				dx = mouseX - ball->_x,
 				dy = mouseY - ball->_y,
 				c = sqrtf(powf(dx, 2) + powf(dy, 2));
 
 			ballVelocityX = ballVelocity * dx / c;
-			ballVelocityY = ballVelocity * dy / c;
+			ballVelocityY = ballVelocity * dy / c;*/
 		}
 		if (!isReleased) cout << "\nx:" << mouseX << "  y:" << mouseY;
 	}
@@ -222,6 +222,31 @@ private:
 	}
 	void updateBall() {
 		ball->Move(&ballVelocityX, &ballVelocityY, deltaTime);
+		
+		switch (CollisionManager::areColliding(ball, trampolin)) {
+			case HORIZONTAL:
+				ballVelocityX = -ballVelocityX;
+				ball->Move(&ballVelocityX, &ballVelocityY, deltaTime*5);
+				break;
+			case VERTICAL:
+				ballVelocityY = -ballVelocityY;
+				if (leftMouseButtonPressed) {
+					float
+						dx = mouseX - ball->_x,
+						dy = mouseY - ball->_y,
+						c = sqrtf(powf(dx, 2) + powf(dy, 2));
+
+					ballVelocityX = ballVelocity * dx / c;
+					ballVelocityY = ballVelocity * dy / c;
+				}
+				ball->Move(&ballVelocityX, &ballVelocityY, deltaTime);
+				break;
+			case NONE:
+			default:
+				break;
+		}
+
+
 		ball->Update();
 	}
 
