@@ -7,6 +7,13 @@ enum CollisionType
 	VERTICAL,
 	NONE
 };
+enum CollisionItem
+{
+	TRAMPOLIN,
+	BORDER,
+	BALL,
+	TILE
+};
 
 class CollisionManager
 {

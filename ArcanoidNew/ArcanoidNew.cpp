@@ -30,8 +30,6 @@ namespace options {
 		playgroundHeight = WINDOW_HEIGHT;
 }
 
-
-
 using namespace input;
 using namespace options;
 
@@ -94,11 +92,11 @@ public:
 
 		//trampoline
 		trampolineSprite = createSprite(".\\data\\56-Breakout-Tiles.png");
-		trampolin = new RectangleShape(trampolinePos, trampolineVelocity, trampolineVelocityDirection, spriteTrampolineWidth, spriteTrampolineHeight, trampolineSprite);
+		trampolin = new Trampoline(trampolinePos, trampolineVelocity, trampolineVelocityDirection, spriteTrampolineWidth, spriteTrampolineHeight, trampolineSprite);
 		
 		//ball
 		ballSprite = createSprite(".\\data\\58-Breakout-Tiles.png");
-		ball = new RectangleShape(ballPos , ballVelocity, ballVelocityDirection, 20, 20, ballSprite);
+		ball = new Ball(ballPos , ballVelocity, ballVelocityDirection, 20, 20, ballSprite);
 
 		//rightwall 
 
@@ -218,37 +216,27 @@ private:
 		
 		CollisionType t = CollisionManager::areColliding(ball, trampolin);
 		if (t != NONE) {
-						
-			
+			float adhereBorderCoordinate;
 			switch (t) {
 			case HORIZONTAL:
-				if (ball->_position.x < trampolin->_position.x) ball->_position.x = trampolin->_position.x - trampolin->_width / 2 - ball->_width / 2;
-				else ball->_position.x = trampolin->_position.x + trampolin->_width / 2 + ball->_width / 2;
+				if (ball->_position.x < trampolin->_position.x) adhereBorderCoordinate = trampolin->_position.x - trampolin->_width / 2 - ball->_width / 2;
+				else adhereBorderCoordinate = trampolin->_position.x + trampolin->_width / 2 + ball->_width / 2;
 
-				ball->_velocityDirecrion.x = - ball->_velocityDirecrion.x;
-				ball->Update(deltaTime);
 				break;
 			case VERTICAL:
 
-				if (ball->_position.y < trampolin->_position.y) ball->_position.y = trampolin->_position.y - trampolin->_height / 2 - ball->_height / 2;
-				else ball->_position.y = trampolin->_position.y + trampolin->_height / 2 + ball->_height / 2;
+				if (ball->_position.y < trampolin->_position.y) adhereBorderCoordinate = trampolin->_position.y - trampolin->_height / 2 - ball->_height / 2;
+				else adhereBorderCoordinate = trampolin->_position.y + trampolin->_height / 2 + ball->_height / 2;
 
-				ball->_velocityDirecrion.y = -ball->_velocityDirecrion.y;
-				if (leftMouseButtonPressed) {
-					float
-						dx = mousePos.x - ball->_position.x,
-						dy = mousePos.y - ball->_position.y,
-						c = sqrtf(powf(dx, 2) + powf(dy, 2));
-
-					ball->_velocityDirecrion.x = ball->_velocity * dx / c;
-					ball->_velocityDirecrion.y = ball->_velocity * dy / c;
-				}
-				ball->Update(deltaTime);
 				break;
 			case NONE:
+				adhereBorderCoordinate = -1;
 			default:
 				break;
 			}
+			ball->OnCollide(t, TRAMPOLIN, adhereBorderCoordinate);
+			trampolin->OnCollide(t, BALL, -1);
+			ball->Update(deltaTime);
 		}
 	}
 
