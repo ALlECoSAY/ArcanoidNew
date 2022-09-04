@@ -56,12 +56,12 @@ class MyFramework : public Framework {
 		mouseX = 0,
 		mouseY = 0,
 		trampolineX = playgroundWidth / 2,
-		trampolineY = playgroundHeight - 50,
+		trampolineY = playgroundHeight - 25,
 		trampolineVelocity = 0.75,
 		ballVelocity = trampolineVelocity * 1.2,
 
-		ballVelocityX = -0.5,
-		ballVelocityY = -0.5,
+		ballVelocityX = 0,
+		ballVelocityY = 1,
 		trampolineVelocityX = 1,
 		trampolineVelocityY = 0;
 
@@ -225,10 +225,17 @@ private:
 		
 		switch (CollisionManager::areColliding(ball, trampolin)) {
 			case HORIZONTAL:
+				if (ball->_x < trampolin->_x) ball->_x = trampolin->_x - trampolin->_width / 2 - ball->_width / 2;
+				else ball->_x = trampolin->_x + trampolin->_width / 2 + ball->_width / 2;
+
 				ballVelocityX = -ballVelocityX;
-				ball->Move(&ballVelocityX, &ballVelocityY, deltaTime*5);
+				ball->Move(&ballVelocityX, &ballVelocityY, deltaTime);
 				break;
 			case VERTICAL:
+
+				if (ball->_y < trampolin->_y) ball->_y = trampolin->_y - trampolin->_height / 2 - ball->_height / 2;
+				else ball->_y = trampolin->_y + trampolin->_height / 2 + ball->_height / 2;
+
 				ballVelocityY = -ballVelocityY;
 				if (leftMouseButtonPressed) {
 					float

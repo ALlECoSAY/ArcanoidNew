@@ -52,7 +52,7 @@ void RectangleShape::Update() {
 
 RectangleShape::~RectangleShape() {
 
-}
+};
 
 
 
@@ -84,12 +84,12 @@ void CircleShape::Move(float* velocityX, float* velocityY, unsigned int timeTick
 			_y;*/
 	}
 
-}
+};
 
 void CircleShape::Update()
 {
-}
+};
 
 CircleShape::~CircleShape()
 {
-}
+};
