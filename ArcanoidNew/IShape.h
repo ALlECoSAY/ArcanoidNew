@@ -3,7 +3,7 @@
 
 class IShape
 {
-
+protected:
 public:
 
 	virtual void Move(float* velocityX, float* velocityY, unsigned int timeTicks) = 0;
