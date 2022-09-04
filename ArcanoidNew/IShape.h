@@ -11,7 +11,7 @@ public:
 
 	virtual void OnCollide(CollisionType type, CollisionItem item, float adhereBorderCoordinate) = 0;
 	virtual void SetDirection(Vec2<float> direction) = 0;
-	virtual void Update(unsigned int timeTicks) = 0;
+	virtual bool Update(unsigned int timeTicks) = 0;
 	
 	//virtual void applyEffect(Effect* effect) = 0;
 	virtual ~IShape() {
@@ -36,7 +36,7 @@ public:
 	// Inherited via IShape
 	virtual void OnCollide(CollisionType type, CollisionItem item, float adhereBorderCoordinate) override;
 	virtual void SetDirection(Vec2<float> direction) override;
-	virtual void Update(unsigned int timeTicks) override;
+	virtual bool Update(unsigned int timeTicks) override;
 
 	RectangleShape(Vec2<float> position, float velocity, Vec2<float> velocityDirecrion, int width, int height, Sprite* sprite);
 	virtual ~RectangleShape();
@@ -69,6 +69,7 @@ class Tile : public RectangleShape
 public:
 	Tile(Vec2<float> position, float velocity, Vec2<float> velocityDirecrion, int width, int height, Sprite* sprite);
 	void OnCollide(CollisionType type, CollisionItem item, float adhereBorderCoordinate);
+	bool Update(unsigned int timeTicks);
 
 private:
 	int _health = 1;

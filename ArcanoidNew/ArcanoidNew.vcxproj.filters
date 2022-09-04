@@ -247,5 +247,32 @@
     <Image Include="data\64-Breakout-Tiles.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="data\9-Breakout-Tiles.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\1-Breakout-Tiles.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\2-Breakout-Tiles.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\3-Breakout-Tiles.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\4-Breakout-Tiles.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\5-Breakout-Tiles.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\6-Breakout-Tiles.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\7-Breakout-Tiles.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\8-Breakout-Tiles.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

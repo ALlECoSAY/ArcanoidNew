@@ -49,9 +49,10 @@ void RectangleShape::Move(unsigned int timeTicks) {
 		this->OnCollide(t, BORDER, adhereBorderCoordinate);
 	}
 };
-void RectangleShape::Update(unsigned int timeTicks) {
+bool RectangleShape::Update(unsigned int timeTicks) {
 	if(_velocity!=0) if(_velocityDirecrion.x!=0 || _velocityDirecrion.y != 0) Move(timeTicks);
 	drawSprite(_sprite, _position.x - _width / 2, _position.y - _height / 2);
+	return true;
 };
 void RectangleShape::OnCollide(CollisionType type, CollisionItem item, float adhereBorderCoordinate) {
 
@@ -154,49 +155,6 @@ void Ball::OnCollide(CollisionType type, CollisionItem item, float adhereBorderC
 		break;
 	case TILE:
 		std::cout << "TILE";
-		break;
-	default:
-		break;
-	}
-
-}
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-
-//Ball
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-Tile::Tile(Vec2<float> position, float velocity, Vec2<float> velocityDirecrion, int width, int height, Sprite* sprite)
-	: RectangleShape::RectangleShape(position, velocity, velocityDirecrion, width, height, sprite) {}
-void Tile::OnCollide(CollisionType type, CollisionItem item, float adhereBorderCoordinate) {
-
-	std::cout << "\nBall collided ";
-	switch (item)
-	{
-	case TRAMPOLIN:
-		std::cout << "TRAMPOLIN";
-		switch (type) {
-		case HORIZONTAL:
-			_position.x = adhereBorderCoordinate;
-			_velocityDirecrion.x = -_velocityDirecrion.x;
-			break;
-		case VERTICAL:
-			_position.y = adhereBorderCoordinate;
-			_velocityDirecrion.y = -_velocityDirecrion.y;
-			if (leftMouseButtonPressed) {
-				float
-					dx = mousePos.x - _position.x,
-					dy = mousePos.y - _position.y,
-					c = sqrtf(powf(dx, 2) + powf(dy, 2));
-
-				_velocityDirecrion.x = _velocity * dx / c;
-				_velocityDirecrion.y = _velocity * dy / c;
-			}
-			break;
-		default:
-			break;
-		}
-		break;
-	case BORDER:
-		std::cout << "BORDER";
 		switch (type)
 		{
 		case HORIZONTAL:
@@ -212,16 +170,24 @@ void Tile::OnCollide(CollisionType type, CollisionItem item, float adhereBorderC
 			break;
 		}
 		break;
-	case BALL:
-		std::cout << "BALL";
-		break;
-	case TILE:
-		std::cout << "TILE";
-		break;
 	default:
 		break;
 	}
 
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+//Tile
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+Tile::Tile(Vec2<float> position, float velocity, Vec2<float> velocityDirecrion, int width, int height, Sprite* sprite)
+	: RectangleShape::RectangleShape(position, velocity, velocityDirecrion, width, height, sprite) {}
+void Tile::OnCollide(CollisionType type, CollisionItem item, float adhereBorderCoordinate) {
+	_health -= 1;
+}
+bool Tile::Update(unsigned int timeTicks) {
+	if (_health <= 0) return false;
+	RectangleShape::Update(timeTicks);
+	return true;
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 

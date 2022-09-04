@@ -1,10 +1,13 @@
 #include "Framework.h"
 #include <iostream>
 #include <Windows.h>
-#include <string>
+#include <list>
+#include <string> 
+#include <ctime>
+#include <cstdlib>
+
 #include "IShape.h"
 #include "CollisionManager.h"
-#include <math.h>
 #include "Shared.h"
 
 using namespace std;
@@ -27,7 +30,13 @@ namespace options {
 		playgroundStartPosition = Vec2<int>(0, 0);
 	int
 		playgroundWidth = WINDOW_WIDTH,
-		playgroundHeight = WINDOW_HEIGHT;
+		playgroundHeight = WINDOW_HEIGHT,
+		
+		spriteMouseWidth = 20,
+		spriteMouseHeight = 20,
+
+		spriteTrampolineWidth = 200,
+		spriteTrampolineHeight = 50;
 }
 
 using namespace input;
@@ -40,19 +49,11 @@ class MyFramework : public Framework {
 		tickTime = 0,
 		deltaTime = 0;
 
-	int
-		spriteMouseWidth = 20,
-		spriteMouseHeight = 20,
-
-		spriteTrampolineWidth = 200,
-		spriteTrampolineHeight = 50;
-
 	float
 		trampolineX = playgroundWidth / 2,
 		trampolineY = playgroundHeight - 25,
 		trampolineVelocity = 0.75,
 		ballVelocity = trampolineVelocity * 1.2;
-
 
 	Vec2<float>
 		trampolinePos = Vec2<float>(trampolineX, trampolineY),
@@ -69,7 +70,8 @@ class MyFramework : public Framework {
 	RectangleShape
 		* trampolin,
 		* ball;
-
+	
+	list<RectangleShape*> tileList;
 
 
 
@@ -98,8 +100,37 @@ public:
 		ballSprite = createSprite(".\\data\\58-Breakout-Tiles.png");
 		ball = new Ball(ballPos , ballVelocity, ballVelocityDirection, 20, 20, ballSprite);
 
-		//rightwall 
-
+		//tiles
+		for (int i = 0; i < 18; i++) {
+			int random = 1 + (rand() % 21);
+			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
+			tileList.push_back(new Tile(Vec2<float>(100 + i * 60, 100), 0, Vec2<float>(0, 0), 60, 20, createSprite(s.c_str())));
+		}
+		for (int i = 0; i < 9; i++) {
+			int random = 1 + (rand() % 21);
+			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
+			tileList.push_back(new Tile(Vec2<float>(100 + i * 120, 120), 0, Vec2<float>(0, 0), 60, 20, createSprite(s.c_str())));
+		}
+		for (int i = 0; i < 18; i++) {
+			int random = 1 + (rand() % 21);
+			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
+			tileList.push_back(new Tile(Vec2<float>(100 + i * 60, 140), 0, Vec2<float>(0, 0), 60, 20, createSprite(s.c_str())));
+		}
+		for (int i = 0; i < 9; i++) {
+			int random = 1 + (rand() % 21);
+			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
+			tileList.push_back(new Tile(Vec2<float>(100 + i * 120, 160), 0, Vec2<float>(0, 0), 60, 20, createSprite(s.c_str())));
+		}
+		for (int i = 0; i < 18; i++) {
+			int random = 1 + (rand() % 21);
+			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
+			tileList.push_back(new Tile(Vec2<float>(100 + i * 60, 180), 0, Vec2<float>(0, 0), 60, 20, createSprite(s.c_str())));
+		}
+		for (int i = 0; i < 9; i++) {
+			int random = 1 + (rand() % 21);
+			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
+			tileList.push_back(new Tile(Vec2<float>(100 + i * 120, 200), 0, Vec2<float>(0, 0), 60, 20, createSprite(s.c_str())));
+		}
 
 
 		return true;
@@ -115,11 +146,19 @@ public:
 		deltaTime = tickTime;
 		tickTime = getTickCount();//time ticks
 		deltaTime = tickTime - deltaTime;
+		if (deltaTime > 100) { 
+			deltaTime = 20; 
+			arrowKeyLeftPressed = false;
+			arrowKeyRightPressed = false;
+			trampolin->_velocityDirecrion.x = 0;
+		}
 		drawTestBackground();
 
 		updateTrampoline();
 		updateCursor();
 		updateBall();
+		updateTiles();
+
 		//cout << "\n" << deltaTime;
 
 
@@ -129,8 +168,8 @@ public:
 	}
 
 	virtual void onMouseMove(int x, int y, int xrelative, int yrelative) {
-		mousePos.x = x - spriteMouseWidth / 2;
-		mousePos.y = y - spriteMouseWidth / 2;
+		mousePos.x = x;
+		mousePos.y = y;
 
 	}
 
@@ -208,7 +247,7 @@ private:
 		trampolin->Update(deltaTime);
 	}
 	void  updateCursor() {
-		drawSprite(mouseCursoreSprite, mousePos.x, mousePos.y);
+		drawSprite(mouseCursoreSprite, mousePos.x - spriteMouseWidth / 2, mousePos.y - spriteMouseHeight / 2);
 	}
 
 	void updateBall() {
@@ -237,9 +276,57 @@ private:
 			ball->OnCollide(t, TRAMPOLIN, adhereBorderCoordinate);
 			trampolin->OnCollide(t, BALL, -1);
 			ball->Update(deltaTime);
+			return;
+		}
+
+		for (RectangleShape* tile : tileList)
+		{
+			CollisionType t = CollisionManager::areColliding(ball, tile);
+			if (t != NONE) {
+				float adhereBorderCoordinate;
+				switch (t) {
+				case HORIZONTAL:
+					if (ball->_position.x < tile->_position.x) adhereBorderCoordinate = tile->_position.x - tile->_width / 2 - ball->_width / 2;
+					else adhereBorderCoordinate = tile->_position.x + tile->_width / 2 + ball->_width / 2;
+
+					break;
+				case VERTICAL:
+
+					if (ball->_position.y < tile->_position.y) adhereBorderCoordinate = tile->_position.y - tile->_height / 2 - ball->_height / 2;
+					else adhereBorderCoordinate = tile->_position.y + tile->_height / 2 + ball->_height / 2;
+
+					break;
+				case NONE:
+					adhereBorderCoordinate = -1;
+				default:
+					break;
+				}
+				ball->OnCollide(t, TILE, adhereBorderCoordinate);
+				tile->OnCollide(t, BALL, -1);
+				ball->Update(deltaTime);
+				return;
+			}
+		}
+
+
+	}
+	void updateTiles() {
+
+		
+		std::list<RectangleShape*>::iterator i = tileList.begin();
+		while (i != tileList.end())
+		{
+			bool isActive = (*i)->Update(deltaTime);
+			if (!isActive)
+			{
+				tileList.erase(i++);  // alternatively, i = items.erase(i);
+			}
+			else
+			{
+				++i;
+			}
 		}
 	}
-
 };
 
 
@@ -247,7 +334,7 @@ private:
 
 int main()
 {
-
+	srand(time(0));
 
 	int d = run(new MyFramework);
 

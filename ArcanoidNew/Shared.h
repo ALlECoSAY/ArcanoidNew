@@ -15,5 +15,11 @@ namespace options {
 		playgroundStartPosition;
 	extern int
 		playgroundWidth,
-		playgroundHeight;
+		playgroundHeight,
+
+		spriteMouseWidth,
+		spriteMouseHeight,
+
+		spriteTrampolineWidth,
+		spriteTrampolineHeight;
 }
