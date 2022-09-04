@@ -144,6 +144,7 @@
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="Framework.h" />
     <ClInclude Include="IShape.h" />
+    <ClInclude Include="Shared.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>

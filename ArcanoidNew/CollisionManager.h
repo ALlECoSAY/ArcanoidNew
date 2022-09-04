@@ -1,4 +1,6 @@
 #pragma once
+#include "Utils.h"
+
 enum CollisionType
 {
 	HORIZONTAL,
@@ -15,10 +17,5 @@ public:
 	template< typename _T >
 	static CollisionType isCollidingBorders(_T);
 
-	static int
-		xPlayground,
-		yPlayground,
-		playgroundWidth,
-		playgroundHeight;
 };
 

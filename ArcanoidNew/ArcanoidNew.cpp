@@ -5,24 +5,35 @@
 #include "IShape.h"
 #include "CollisionManager.h"
 #include <math.h>
+#include "Shared.h"
 
 using namespace std;
+
 
 
 #define WINDOW_WIDTH 1200
 #define WINDOW_HEIGHT 700
 
-//std::string GetCurrentDirectory()
-//{
-//	char buffer[MAX_PATH];
-//	GetModuleFileNameA(NULL, buffer, MAX_PATH);
-//	std::string::size_type pos = std::string(buffer).find_last_of("\\/");
-//
-//	return std::string(buffer).substr(0, pos);
-//}
+namespace input {
+	bool
+		arrowKeyRightPressed = false,
+		arrowKeyLeftPressed = false,
+		leftMouseButtonPressed = false;
+	Vec2<int>
+		mousePos = Vec2<int>(0, 0);
+}
+namespace options {
+	Vec2<int>
+		playgroundStartPosition = Vec2<int>(0, 0);
+	int
+		playgroundWidth = WINDOW_WIDTH,
+		playgroundHeight = WINDOW_HEIGHT;
+}
 
 
 
+using namespace input;
+using namespace options;
 
 /* Test Framework realization */
 class MyFramework : public Framework {
@@ -31,40 +42,25 @@ class MyFramework : public Framework {
 		tickTime = 0,
 		deltaTime = 0;
 
-
-
-	bool
-		arrowKeyRightPressed = false,
-		arrowKeyLeftPressed = false,
-		leftMouseButtonPressed = false;
-		
-
 	int
-		playgroundWidth = WINDOW_WIDTH,
-		playgroundHeight = WINDOW_HEIGHT,
-
 		spriteMouseWidth = 20,
 		spriteMouseHeight = 20,
 
 		spriteTrampolineWidth = 200,
 		spriteTrampolineHeight = 50;
 
-
-
-
 	float
-		mouseX = 0,
-		mouseY = 0,
 		trampolineX = playgroundWidth / 2,
 		trampolineY = playgroundHeight - 25,
 		trampolineVelocity = 0.75,
-		ballVelocity = trampolineVelocity * 1.2,
+		ballVelocity = trampolineVelocity * 1.2;
 
-		ballVelocityX = 0,
-		ballVelocityY = 1,
-		trampolineVelocityX = 1,
-		trampolineVelocityY = 0;
 
+	Vec2<float>
+		trampolinePos = Vec2<float>(trampolineX, trampolineY),
+		ballPos = Vec2<float>(trampolineX, trampolineY - spriteTrampolineHeight),
+		ballVelocityDirection = Vec2<float>(0, -1),
+		trampolineVelocityDirection = Vec2<float>(0, 0);
 
 	Sprite
 		* mouseCursoreSprite,
@@ -90,23 +86,19 @@ public:
 	}
 
 	virtual bool Init() {
-		CollisionManager::xPlayground = 0;
-		CollisionManager::yPlayground = 0;
-		CollisionManager::playgroundWidth = playgroundWidth;
-		CollisionManager::playgroundHeight = playgroundHeight;
 
-		showCursor(true);
 		//cursor
+		showCursor(true);
 		mouseCursoreSprite = createSprite(".\\data\\green-circle.png");
 		setSpriteSize(mouseCursoreSprite, spriteMouseWidth, spriteMouseHeight);
 
 		//trampoline
 		trampolineSprite = createSprite(".\\data\\56-Breakout-Tiles.png");
-		trampolin = new RectangleShape(trampolineX, trampolineY, &trampolineVelocity, spriteTrampolineWidth, spriteTrampolineHeight, trampolineSprite);
+		trampolin = new RectangleShape(trampolinePos, trampolineVelocity, trampolineVelocityDirection, spriteTrampolineWidth, spriteTrampolineHeight, trampolineSprite);
 		
 		//ball
 		ballSprite = createSprite(".\\data\\58-Breakout-Tiles.png");
-		ball = new RectangleShape(trampolineX, trampolineY - spriteTrampolineHeight, &ballVelocity, 20, 20, ballSprite);
+		ball = new RectangleShape(ballPos , ballVelocity, ballVelocityDirection, 20, 20, ballSprite);
 
 		//rightwall 
 
@@ -125,7 +117,6 @@ public:
 		deltaTime = tickTime;
 		tickTime = getTickCount();//time ticks
 		deltaTime = tickTime - deltaTime;
-		deltaTime = 20;
 		drawTestBackground();
 
 		updateTrampoline();
@@ -140,8 +131,9 @@ public:
 	}
 
 	virtual void onMouseMove(int x, int y, int xrelative, int yrelative) {
-		mouseX = x - spriteMouseWidth / 2;
-		mouseY = y - spriteMouseHeight / 2;
+		mousePos.x = x - spriteMouseWidth / 2;
+		mousePos.y = y - spriteMouseWidth / 2;
+
 	}
 
 	virtual void onMouseButtonClick(FRMouseButton button, bool isReleased) {
@@ -156,7 +148,7 @@ public:
 			ballVelocityX = ballVelocity * dx / c;
 			ballVelocityY = ballVelocity * dy / c;*/
 		}
-		if (!isReleased) cout << "\nx:" << mouseX << "  y:" << mouseY;
+		if (!isReleased) cout << "\nx:" << mousePos.x << "  y:" << mousePos.y;
 	}
 
 	virtual void onKeyPressed(FRKey k) {
@@ -184,9 +176,11 @@ public:
 		{
 		case FRKey::RIGHT:
 			arrowKeyRightPressed = false;
+			if(!arrowKeyLeftPressed) trampolin->SetDirection(Vec2<float>(0, 0));
 			break;
 		case FRKey::LEFT:
 			arrowKeyLeftPressed = false;
+			if (!arrowKeyRightPressed) trampolin->SetDirection(Vec2<float>(0, 0));
 			break;
 		case FRKey::DOWN:
 			break;
@@ -207,54 +201,55 @@ public:
 private:
 	void  updateTrampoline() {
 		if (arrowKeyRightPressed && !arrowKeyLeftPressed) {
-			trampolineVelocityX = 1;
-			trampolin->Move(&trampolineVelocityX, &trampolineVelocityY, deltaTime);
+			trampolin->SetDirection(Vec2<float>(1, 0));
 		}
 		if (!arrowKeyRightPressed && arrowKeyLeftPressed)
 		{
-			trampolineVelocityX = -1;
-			trampolin->Move(&trampolineVelocityX, &trampolineVelocityY, deltaTime);
+			trampolin->SetDirection(Vec2<float>(-1, 0));
 		}
-		trampolin->Update();
+		trampolin->Update(deltaTime);
 	}
 	void  updateCursor() {
-		drawSprite(mouseCursoreSprite, mouseX, mouseY);
+		drawSprite(mouseCursoreSprite, mousePos.x, mousePos.y);
 	}
-	void updateBall() {
-		ball->Move(&ballVelocityX, &ballVelocityY, deltaTime);
-		
-		switch (CollisionManager::areColliding(ball, trampolin)) {
-			case HORIZONTAL:
-				if (ball->_x < trampolin->_x) ball->_x = trampolin->_x - trampolin->_width / 2 - ball->_width / 2;
-				else ball->_x = trampolin->_x + trampolin->_width / 2 + ball->_width / 2;
 
-				ballVelocityX = -ballVelocityX;
-				ball->Move(&ballVelocityX, &ballVelocityY, deltaTime);
+	void updateBall() {
+		ball->Update(deltaTime);
+		
+		CollisionType t = CollisionManager::areColliding(ball, trampolin);
+		if (t != NONE) {
+						
+			
+			switch (t) {
+			case HORIZONTAL:
+				if (ball->_position.x < trampolin->_position.x) ball->_position.x = trampolin->_position.x - trampolin->_width / 2 - ball->_width / 2;
+				else ball->_position.x = trampolin->_position.x + trampolin->_width / 2 + ball->_width / 2;
+
+				ball->_velocityDirecrion.x = - ball->_velocityDirecrion.x;
+				ball->Update(deltaTime);
 				break;
 			case VERTICAL:
 
-				if (ball->_y < trampolin->_y) ball->_y = trampolin->_y - trampolin->_height / 2 - ball->_height / 2;
-				else ball->_y = trampolin->_y + trampolin->_height / 2 + ball->_height / 2;
+				if (ball->_position.y < trampolin->_position.y) ball->_position.y = trampolin->_position.y - trampolin->_height / 2 - ball->_height / 2;
+				else ball->_position.y = trampolin->_position.y + trampolin->_height / 2 + ball->_height / 2;
 
-				ballVelocityY = -ballVelocityY;
+				ball->_velocityDirecrion.y = -ball->_velocityDirecrion.y;
 				if (leftMouseButtonPressed) {
 					float
-						dx = mouseX - ball->_x,
-						dy = mouseY - ball->_y,
+						dx = mousePos.x - ball->_position.x,
+						dy = mousePos.y - ball->_position.y,
 						c = sqrtf(powf(dx, 2) + powf(dy, 2));
 
-					ballVelocityX = ballVelocity * dx / c;
-					ballVelocityY = ballVelocity * dy / c;
+					ball->_velocityDirecrion.x = ball->_velocity * dx / c;
+					ball->_velocityDirecrion.y = ball->_velocity * dy / c;
 				}
-				ball->Move(&ballVelocityX, &ballVelocityY, deltaTime);
+				ball->Update(deltaTime);
 				break;
 			case NONE:
 			default:
 				break;
+			}
 		}
-
-
-		ball->Update();
 	}
 
 };
