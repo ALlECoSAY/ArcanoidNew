@@ -129,9 +129,11 @@
   <ItemGroup>
     <ClCompile Include="ArcanoidNew.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
+    <ClCompile Include="IEffect.cpp" />
     <ClCompile Include="IShape.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="data\green-crosshair.png.crdownload" />
     <None Include="FrameworkRelease_x64.dll" />
     <None Include="libjpeg-9.dll" />
     <None Include="libpng16-16.dll" />
@@ -143,6 +145,7 @@
   <ItemGroup>
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="Framework.h" />
+    <ClInclude Include="IEffect.h" />
     <ClInclude Include="IShape.h" />
     <ClInclude Include="Shared.h" />
     <ClInclude Include="Utils.h" />
@@ -224,6 +227,8 @@
     <Image Include="data\7-Breakout-Tiles.png" />
     <Image Include="data\8-Breakout-Tiles.png" />
     <Image Include="data\9-Breakout-Tiles.png" />
+    <Image Include="data\blackBackground.png" />
+    <Image Include="data\green-circle.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

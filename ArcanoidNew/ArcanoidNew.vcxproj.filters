@@ -24,6 +24,9 @@
     <ClCompile Include="IShape.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="zlib1.dll" />
@@ -33,6 +36,7 @@
     <None Include="SDL2.dll" />
     <None Include="SDL2_image.dll" />
     <None Include="test_sample.exe" />
+    <None Include="data\green-crosshair.png.crdownload" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Framework.h">
@@ -48,6 +52,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Shared.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IEffect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -272,6 +279,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="data\8-Breakout-Tiles.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\blackBackground.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\green-circle.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

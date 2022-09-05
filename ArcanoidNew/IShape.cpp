@@ -12,6 +12,7 @@ RectangleShape::RectangleShape(Vec2<float> position, float velocity, Vec2<float>
 	_position = position;
 	_velocity = velocity;
 	_velocityDirecrion = velocityDirecrion;
+	_defaultWidth = width;
 	_width = width;
 	_height = height;
 	_sprite = sprite;
@@ -30,6 +31,7 @@ void RectangleShape::Move(unsigned int timeTicks) {
 	CollisionType t = CollisionManager::isCollidingBorders(this);
 	if (t != NONE) {
 		float adhereBorderCoordinate;
+		
 		switch (t)
 		{
 			case HORIZONTAL:
@@ -50,17 +52,92 @@ void RectangleShape::Move(unsigned int timeTicks) {
 	}
 };
 bool RectangleShape::Update(unsigned int timeTicks) {
-	if(_velocity!=0) if(_velocityDirecrion.x!=0 || _velocityDirecrion.y != 0) Move(timeTicks);
+	if (_velocity != 0) if (_velocityDirecrion.x != 0 || _velocityDirecrion.y != 0) {
+		Move(timeTicks);
+	}
 	drawSprite(_sprite, _position.x - _width / 2, _position.y - _height / 2);
 	return true;
 };
 void RectangleShape::OnCollide(CollisionType type, CollisionItem item, float adhereBorderCoordinate) {
 
 }
+void RectangleShape::OnEffectChange() {
+	_width = _defaultWidth * (_sizeModifier > 2 ? 2 : _sizeModifier < 0.4 ? 0.4 : _sizeModifier);
+	setSpriteSize(_sprite, _width , _height);
+
+}
 void RectangleShape::SetDirection(Vec2<float> direction) {
 	_velocityDirecrion = direction;
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+//Circle
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+CircleShape::CircleShape(Vec2<float> position, float velocity, Vec2<float> velocityDirecrion, int radius, Sprite* sprite) {
+	_position = position;
+	_velocity = velocity;
+	_velocityDirecrion = velocityDirecrion;
+	_radius = radius;
+	_sprite = sprite;
+	setSpriteSize(sprite, radius*2, radius*2);
+};
+CircleShape::~CircleShape() {
+
+};
+void CircleShape::Move(unsigned int timeTicks) {
+
+	Vec2<float> deltaPos = _velocityDirecrion * timeTicks * _velocity * _velocityModifier;
+
+	_position = _position + deltaPos;
+
+	//check on borders collision
+	CollisionType t = CollisionManager::isCollidingBorders(this);
+	if (t != NONE) {
+		float adhereBorderCoordinate;
+		switch (t)
+		{
+		case HORIZONTAL:
+			adhereBorderCoordinate = _position.x - _radius < playgroundStartPosition.x ? playgroundStartPosition.x + _radius :
+				_position.x + _radius > playgroundStartPosition.x + playgroundWidth ? playgroundStartPosition.x + playgroundWidth - _radius :
+				_position.x;
+			break;
+		case VERTICAL:
+			adhereBorderCoordinate = _position.y - _radius < playgroundStartPosition.y ? playgroundStartPosition.y + _radius :
+				_position.y + _radius > playgroundStartPosition.y + playgroundHeight ? playgroundStartPosition.y + playgroundHeight - _radius :
+				_position.y;
+			break;
+		case NONE:
+		default:
+			break;
+		}
+		this->OnCollide(t, BORDER, adhereBorderCoordinate);
+	}
+};
+bool CircleShape::Update(unsigned int timeTicks) {
+	if (_velocity != 0) if (_velocityDirecrion.x != 0 || _velocityDirecrion.y != 0) {
+		Move(timeTicks);
+		//TODO
+		
+	}
+	drawSprite(_sprite, _position.x - _radius, _position.y - _radius);
+	return true;
+};
+void CircleShape::OnCollide(CollisionType type, CollisionItem item, float adhereBorderCoordinate) {
+
+}
+void CircleShape::OnEffectChange() {
+
+
+
+}
+void CircleShape::SetDirection(Vec2<float> direction) {
+	_velocityDirecrion = direction;
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
 
 
 //Trampoline
@@ -175,6 +252,7 @@ void Ball::OnCollide(CollisionType type, CollisionItem item, float adhereBorderC
 	}
 
 }
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
 //Tile
@@ -190,6 +268,90 @@ bool Tile::Update(unsigned int timeTicks) {
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+//Ball
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+BallCircle::BallCircle(Vec2<float> position, float velocity, Vec2<float> velocityDirecrion, int radius, Sprite* sprite)
+	: CircleShape::CircleShape(position, velocity, velocityDirecrion, radius, sprite) {}
+void BallCircle::OnCollide(CollisionType type, CollisionItem item, float adhereBorderCoordinate) {
+
+	std::cout << "\nBall collided ";
+	switch (item)
+	{
+	case TRAMPOLIN:
+		std::cout << "TRAMPOLIN";
+		switch (type) {
+		case HORIZONTAL:
+			_position.x = adhereBorderCoordinate;
+			_velocityDirecrion.x = -_velocityDirecrion.x;
+			break;
+		case VERTICAL:
+			_position.y = adhereBorderCoordinate;
+			_velocityDirecrion.y = -_velocityDirecrion.y;
+			if (leftMouseButtonPressed) {
+				float
+					dx = mousePos.x - _position.x,
+					dy = mousePos.y - _position.y,
+					c = sqrtf(powf(dx, 2) + powf(dy, 2));
+
+				_velocityDirecrion.x = _velocity * dx / c;
+				_velocityDirecrion.y = _velocity * dy / c;
+			}
+			break;
+		default:
+			break;
+		}
+		break;
+	case BORDER:
+		std::cout << "BORDER";
+		switch (type)
+		{
+		case HORIZONTAL:
+			_position.x = adhereBorderCoordinate;
+			_velocityDirecrion.x = -_velocityDirecrion.x;
+			break;
+		case VERTICAL:
+			_position.y = adhereBorderCoordinate;
+			_velocityDirecrion.y = -_velocityDirecrion.y;
+			break;
+		default:
+
+			break;
+		}
+		break;
+	case BALL:
+		std::cout << "BALL";
+		break;
+	case TILE:
+		std::cout << "TILE";
+		switch (type)
+		{
+		case HORIZONTAL:
+			_position.x = adhereBorderCoordinate;
+			_velocityDirecrion.x = -_velocityDirecrion.x;
+			break;
+		case VERTICAL:
+			_position.y = adhereBorderCoordinate;
+			_velocityDirecrion.y = -_velocityDirecrion.y;
+			break;
+		default:
+
+			break;
+		}
+		break;
+	default:
+		break;
+	}
+
+}
+bool BallCircle::Update(unsigned int timeTicks) {
+	if (_position.y >= playgroundHeight - _radius) 
+		if(--_health < 1) return false;
+	CircleShape::Update(timeTicks);
+	return true;
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 
 

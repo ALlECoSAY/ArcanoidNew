@@ -18,6 +18,39 @@ CollisionType CollisionManager::areColliding(RectangleShape* r1, RectangleShape*
 	return HORIZONTAL;
 };
 
+template<>
+CollisionType CollisionManager::areColliding(CircleShape* c, RectangleShape* r)
+{
+	Vec2<float> delta = c->_position - r->_position;
+	float dx = fabs(delta.x);
+	float dy = fabs(delta.y);
+
+	if (dx >= (r->_width / 2 + c->_radius)) { return NONE; }
+	if (dy >= (r->_height / 2 + c->_radius)) { return NONE; }
+
+	//v kakuyu storonu deflect tablica istinnosti v tg #tbistdeflect
+	Vec2<float> v = c->_velocityDirecrion;
+	if (v.x <= 0 && v.y > 0 && delta.x <= 0) 		return VERTICAL;
+	if (v.x > 0 && v.y > 0 && delta.x > 0) 			return VERTICAL;
+	if (v.x <= 0 && v.y <= 0 && delta.x <= 0)		return VERTICAL;
+	if (v.x > 0 && v.y <= 0 && delta.x > 0)			return VERTICAL;
+	if (v.x <= 0 && v.y > 0 && delta.y > 0)			return HORIZONTAL;
+	if (v.x > 0 && v.y > 0 && delta.y > 0)			return HORIZONTAL;
+	if (v.x <= 0 && v.y <= 0 && delta.y <= 0)		return HORIZONTAL;
+	if (v.x > 0 && v.y <= 0 && delta.y <= 0)		return HORIZONTAL;
+
+	dx = c->_radius + r->_width / 2 - dx;
+	dy = c->_radius + r->_height / 2 - dy;
+	if (dy < dx) return VERTICAL;
+	return HORIZONTAL;
+};
+
+template<>
+CollisionType CollisionManager::areColliding(RectangleShape* r, CircleShape* c)
+{
+	return CollisionManager::areColliding(c,r);
+};
+
 //template<>
 //CollisionType CollisionManager::areColliding(CircleShape* c1, CircleShape* c2)
 //{
@@ -57,6 +90,15 @@ CollisionType CollisionManager::isCollidingBorders(RectangleShape* r) {
 	return NONE;
 };
 
+template<>
+CollisionType CollisionManager::isCollidingBorders(CircleShape* c) {
+	if (c->_position.x - c->_radius < playgroundStartPosition.x)						return HORIZONTAL;
+	if (c->_position.x + c->_radius > playgroundStartPosition.x + playgroundWidth)		return HORIZONTAL;
+	if (c->_position.y - c->_radius < playgroundStartPosition.y)						return VERTICAL;
+	if (c->_position.y + c->_radius > playgroundStartPosition.y + playgroundHeight)		return VERTICAL;
+
+	return NONE;
+};
 
 //template<>
 //CollisionType CollisionManager::isCollidingBorders(CircleShape* c) {

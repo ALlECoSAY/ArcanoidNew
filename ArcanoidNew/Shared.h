@@ -22,4 +22,8 @@ namespace options {
 
 		spriteTrampolineWidth,
 		spriteTrampolineHeight;
+
+	extern float
+		trampolineVelocity,
+		ballVelocity;
 }

@@ -9,6 +9,7 @@
 #include "IShape.h"
 #include "CollisionManager.h"
 #include "Shared.h"
+#include "IEffect.h"
 
 using namespace std;
 
@@ -37,12 +38,16 @@ namespace options {
 
 		spriteTrampolineWidth = 200,
 		spriteTrampolineHeight = 50;
+
+	float
+		trampolineVelocity = 0.75,
+		ballVelocity = trampolineVelocity * 1.2;
 }
 
 using namespace input;
 using namespace options;
 
-/* Test Framework realization */
+
 class MyFramework : public Framework {
 
 	unsigned int
@@ -51,9 +56,8 @@ class MyFramework : public Framework {
 
 	float
 		trampolineX = playgroundWidth / 2,
-		trampolineY = playgroundHeight - 25,
-		trampolineVelocity = 0.75,
-		ballVelocity = trampolineVelocity * 1.2;
+		trampolineY = playgroundHeight - 25;
+		
 
 	Vec2<float>
 		trampolinePos = Vec2<float>(trampolineX, trampolineY),
@@ -65,15 +69,21 @@ class MyFramework : public Framework {
 		* mouseCursoreSprite,
 		* trampolineSprite,
 		* rightWallSprite,
-		* ballSprite;
+		* ballSprite,
+		* backgroundSprite,
+		* infoBackgroundSprite;
 
-	RectangleShape
-		* trampolin,
-		* ball;
+	RectangleShape	*trampolin;
+	CircleShape *ball;
 	
 	list<RectangleShape*> tileList;
 
+	IEffect 
+		*areaVelocityEffect,
+		*areaVelocityPurgeEffect;
 
+	list<ITemporalEffect*> temporalEffects;
+	
 
 public:
 
@@ -86,6 +96,13 @@ public:
 	}
 
 	virtual bool Init() {
+		//background
+		backgroundSprite = createSprite(".\\data\\blackBackground.png");
+		setSpriteSize(backgroundSprite, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+		//infobackground
+		infoBackgroundSprite = createSprite(".\\data\\blackBackground.png");
+		setSpriteSize(infoBackgroundSprite, WINDOW_WIDTH-playgroundWidth, WINDOW_HEIGHT);
 
 		//cursor
 		showCursor(true);
@@ -98,40 +115,57 @@ public:
 		
 		//ball
 		ballSprite = createSprite(".\\data\\58-Breakout-Tiles.png");
-		ball = new Ball(ballPos , ballVelocity, ballVelocityDirection, 20, 20, ballSprite);
+		ball = new BallCircle(ballPos , ballVelocity, ballVelocityDirection, 6, ballSprite);
 
 		//tiles
-		for (int i = 0; i < 18; i++) {
-			int random = 1 + (rand() % 21);
+		for (int i = 0; i < 13; i++) {
+			int random = 1 + (rand() % 20);
 			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
-			tileList.push_back(new Tile(Vec2<float>(100 + i * 60, 100), 0, Vec2<float>(0, 0), 60, 20, createSprite(s.c_str())));
+			tileList.push_back(new Tile(Vec2<float>(100 + i * 60, 100), 0, Vec2<float>(0, 0), 60, 30, createSprite(s.c_str())));
 		}
-		for (int i = 0; i < 9; i++) {
-			int random = 1 + (rand() % 21);
+		for (int i = 0; i < 7; i++) {
+			int random = 1 + (rand() % 20);
 			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
-			tileList.push_back(new Tile(Vec2<float>(100 + i * 120, 120), 0, Vec2<float>(0, 0), 60, 20, createSprite(s.c_str())));
+			tileList.push_back(new Tile(Vec2<float>(100 + i * 120, 130), 0, Vec2<float>(0, 0), 60, 30, createSprite(s.c_str())));
 		}
-		for (int i = 0; i < 18; i++) {
-			int random = 1 + (rand() % 21);
+		for (int i = 0; i < 13; i++) {
+			int random = 1 + (rand() % 20);
 			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
-			tileList.push_back(new Tile(Vec2<float>(100 + i * 60, 140), 0, Vec2<float>(0, 0), 60, 20, createSprite(s.c_str())));
+			tileList.push_back(new Tile(Vec2<float>(100 + i * 60, 160), 0, Vec2<float>(0, 0), 60, 30, createSprite(s.c_str())));
 		}
-		for (int i = 0; i < 9; i++) {
-			int random = 1 + (rand() % 21);
+		for (int i = 0; i < 7; i++) {
+			int random = 1 + (rand() % 20);
 			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
-			tileList.push_back(new Tile(Vec2<float>(100 + i * 120, 160), 0, Vec2<float>(0, 0), 60, 20, createSprite(s.c_str())));
+			tileList.push_back(new Tile(Vec2<float>(100 + i * 120, 190), 0, Vec2<float>(0, 0), 60, 30, createSprite(s.c_str())));
 		}
-		for (int i = 0; i < 18; i++) {
-			int random = 1 + (rand() % 21);
+		for (int i = 0; i < 13; i++) {
+			int random = 1 + (rand() % 20);
 			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
-			tileList.push_back(new Tile(Vec2<float>(100 + i * 60, 180), 0, Vec2<float>(0, 0), 60, 20, createSprite(s.c_str())));
+			tileList.push_back(new Tile(Vec2<float>(100 + i * 60, 220), 0, Vec2<float>(0, 0), 60, 30, createSprite(s.c_str())));
 		}
-		for (int i = 0; i < 9; i++) {
-			int random = 1 + (rand() % 21);
+		for (int i = 0; i < 7; i++) {
+			int random = 1 + (rand() % 20);
 			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
-			tileList.push_back(new Tile(Vec2<float>(100 + i * 120, 200), 0, Vec2<float>(0, 0), 60, 20, createSprite(s.c_str())));
+			tileList.push_back(new Tile(Vec2<float>(100 + i * 120, 250), 0, Vec2<float>(0, 0), 60, 30, createSprite(s.c_str())));
 		}
+		for (int i = 0; i < 13; i++) {
+			int random = 1 + (rand() % 20);
+			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
+			tileList.push_back(new Tile(Vec2<float>(100 + i * 60, 280), 0, Vec2<float>(0, 0), 60, 30, createSprite(s.c_str())));
+		}
+		
+		//effects
+		list<Vec2<float>> dots;
+		dots.push_back(Vec2<float>(100 + (rand() % (playgroundWidth - 100)), 100 + (rand() % (playgroundHeight - 100))));
+		dots.push_back(Vec2<float>(100 + (rand() % (playgroundWidth - 100)), 100 + (rand() % (playgroundHeight - 100))));
 
+		list<Vec2<float>> dotsPurge;
+		dotsPurge.push_back(Vec2<float>(100 + (rand() % (playgroundWidth - 100)), 100 + (rand() % (playgroundHeight - 100))));
+		dotsPurge.push_back(Vec2<float>(100 + (rand() % (playgroundWidth - 100)), 100 + (rand() % (playgroundHeight - 100))));
+
+		areaVelocityEffect = new AreaVelocityEffect(dots, ball);
+		areaVelocityPurgeEffect = new AreaVelocityEffect(dotsPurge, ball);
+		
 
 		return true;
 	}
@@ -143,6 +177,8 @@ public:
 
 	//rendering ticks
 	virtual bool Tick() {
+		
+
 		deltaTime = tickTime;
 		tickTime = getTickCount();//time ticks
 		deltaTime = tickTime - deltaTime;
@@ -152,12 +188,26 @@ public:
 			arrowKeyRightPressed = false;
 			trampolin->_velocityDirecrion.x = 0;
 		}
-		drawTestBackground();
 
+		drawBackground();
 		updateTrampoline();
+
+		//loose condition
+		areaVelocityEffect->Apply();
+		areaVelocityPurgeEffect->Purge();
+
+		if (updateBall()) {
+			cout << "\nYOU LOST";
+			return true;
+		}
+		if (updateTiles()) {
+			cout << "\nYOU WON";
+			return true;
+		}
+	
+		updateTemporalEffects();
+
 		updateCursor();
-		updateBall();
-		updateTiles();
 
 		//cout << "\n" << deltaTime;
 
@@ -177,13 +227,7 @@ public:
 
 		if (button == FRMouseButton::LEFT) leftMouseButtonPressed = !isReleased;
 		if (button == FRMouseButton::RIGHT) {
-			/*float
-				dx = mouseX - ball->_x,
-				dy = mouseY - ball->_y,
-				c = sqrtf(powf(dx, 2) + powf(dy, 2));
-
-			ballVelocityX = ballVelocity * dx / c;
-			ballVelocityY = ballVelocity * dy / c;*/
+			applyTemporalEffect(new SizeChangeEffect(1.4, 4000, trampolin));
 		}
 		if (!isReleased) cout << "\nx:" << mousePos.x << "  y:" << mousePos.y;
 	}
@@ -236,7 +280,7 @@ public:
 	}
 
 private:
-	void  updateTrampoline() {
+	void updateTrampoline() {
 		if (arrowKeyRightPressed && !arrowKeyLeftPressed) {
 			trampolin->SetDirection(Vec2<float>(1, 0));
 		}
@@ -246,26 +290,37 @@ private:
 		}
 		trampolin->Update(deltaTime);
 	}
-	void  updateCursor() {
+	void updateCursor() {
 		drawSprite(mouseCursoreSprite, mousePos.x - spriteMouseWidth / 2, mousePos.y - spriteMouseHeight / 2);
 	}
 
-	void updateBall() {
-		ball->Update(deltaTime);
+	bool updateBall() {
+		Vec2<float> initialPos = ball->_position;
 		
+
+
+		Vec2<float> delta = Vec2<float>(1000000, 1000000);
+
+		//loosecondition
+		if (!ball->Update(deltaTime)) {
+			return true;
+		}
+
+
+		//trampolin check
 		CollisionType t = CollisionManager::areColliding(ball, trampolin);
 		if (t != NONE) {
 			float adhereBorderCoordinate;
 			switch (t) {
 			case HORIZONTAL:
-				if (ball->_position.x < trampolin->_position.x) adhereBorderCoordinate = trampolin->_position.x - trampolin->_width / 2 - ball->_width / 2;
-				else adhereBorderCoordinate = trampolin->_position.x + trampolin->_width / 2 + ball->_width / 2;
+				if (ball->_position.x < trampolin->_position.x) adhereBorderCoordinate = trampolin->_position.x - trampolin->_width / 2 - ball->_radius;
+				else adhereBorderCoordinate = trampolin->_position.x + trampolin->_width / 2 + ball->_radius;
 
 				break;
 			case VERTICAL:
 
-				if (ball->_position.y < trampolin->_position.y) adhereBorderCoordinate = trampolin->_position.y - trampolin->_height / 2 - ball->_height / 2;
-				else adhereBorderCoordinate = trampolin->_position.y + trampolin->_height / 2 + ball->_height / 2;
+				if (ball->_position.y < trampolin->_position.y) adhereBorderCoordinate = trampolin->_position.y - trampolin->_height / 2 - ball->_radius;
+				else adhereBorderCoordinate = trampolin->_position.y + trampolin->_height / 2 + ball->_radius;
 
 				break;
 			case NONE:
@@ -275,25 +330,42 @@ private:
 			}
 			ball->OnCollide(t, TRAMPOLIN, adhereBorderCoordinate);
 			trampolin->OnCollide(t, BALL, -1);
-			ball->Update(deltaTime);
-			return;
+			return false;
 		}
 
+		//tile check
+		list<RectangleShape*> collidedTiles;
+		RectangleShape* closestTile;
 		for (RectangleShape* tile : tileList)
 		{
 			CollisionType t = CollisionManager::areColliding(ball, tile);
 			if (t != NONE) {
+				collidedTiles.push_back(tile);
+			}
+		}
+		if (collidedTiles.size() > 0) {
+			closestTile = collidedTiles.front();
+			for (RectangleShape* tile : collidedTiles)
+			{
+				Vec2<float> deltaTemp = tile->_position - initialPos;
+				if (delta.length() > deltaTemp.length()) {
+					delta = deltaTemp;
+					closestTile = tile;
+				}
+			}
+			CollisionType t = CollisionManager::areColliding(ball, closestTile);
+			if (t != NONE) {
 				float adhereBorderCoordinate;
 				switch (t) {
 				case HORIZONTAL:
-					if (ball->_position.x < tile->_position.x) adhereBorderCoordinate = tile->_position.x - tile->_width / 2 - ball->_width / 2;
-					else adhereBorderCoordinate = tile->_position.x + tile->_width / 2 + ball->_width / 2;
+					if (ball->_position.x < closestTile->_position.x) adhereBorderCoordinate = closestTile->_position.x - closestTile->_width / 2 - ball->_radius;
+					else adhereBorderCoordinate = closestTile->_position.x + closestTile->_width / 2 + ball->_radius;
 
 					break;
 				case VERTICAL:
 
-					if (ball->_position.y < tile->_position.y) adhereBorderCoordinate = tile->_position.y - tile->_height / 2 - ball->_height / 2;
-					else adhereBorderCoordinate = tile->_position.y + tile->_height / 2 + ball->_height / 2;
+					if (ball->_position.y < closestTile->_position.y) adhereBorderCoordinate = closestTile->_position.y - closestTile->_height / 2 - ball->_radius;
+					else adhereBorderCoordinate = closestTile->_position.y + closestTile->_height / 2 + ball->_radius;
 
 					break;
 				case NONE:
@@ -302,16 +374,18 @@ private:
 					break;
 				}
 				ball->OnCollide(t, TILE, adhereBorderCoordinate);
-				tile->OnCollide(t, BALL, -1);
-				ball->Update(deltaTime);
-				return;
+				closestTile->OnCollide(t, BALL, -1);
+				return false;
 			}
 		}
-
-
+		return false;
 	}
-	void updateTiles() {
+	bool updateTiles() {
 
+		//wincondition
+		if (tileList.size() == 0) {
+			return true;
+		}
 		
 		std::list<RectangleShape*>::iterator i = tileList.begin();
 		while (i != tileList.end())
@@ -319,7 +393,34 @@ private:
 			bool isActive = (*i)->Update(deltaTime);
 			if (!isActive)
 			{
-				tileList.erase(i++);  // alternatively, i = items.erase(i);
+				destroySprite((*i)->_sprite);
+				tileList.erase(i++); 
+			}
+			else
+			{
+				++i;
+			}
+		}
+		return false;
+	}
+
+	void drawBackground() {
+		drawSprite(backgroundSprite, 0, 0);
+	}
+
+	void applyTemporalEffect(ITemporalEffect* effect){
+		effect->Apply();
+		temporalEffects.push_back(effect);
+	}
+	void updateTemporalEffects() {
+		list<ITemporalEffect*>::iterator i = temporalEffects.begin();
+		while (i != temporalEffects.end())
+		{
+			bool isActive = (*i)->Update(deltaTime);
+			if (!isActive)
+			{
+				(*i)->Purge();
+				temporalEffects.erase(i++);
 			}
 			else
 			{
@@ -327,6 +428,7 @@ private:
 			}
 		}
 	}
+
 };
 
 
