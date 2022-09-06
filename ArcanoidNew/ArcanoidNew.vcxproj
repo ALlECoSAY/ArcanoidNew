@@ -155,6 +155,7 @@
     <Library Include="FrameworkRelease_x64.lib" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="data\0-Number-PNG.png" />
     <Image Include="data\01-Breakout-Tiles.png" />
     <Image Include="data\02-Breakout-Tiles.png" />
     <Image Include="data\03-Breakout-Tiles.png" />
@@ -165,6 +166,7 @@
     <Image Include="data\08-Breakout-Tiles.png" />
     <Image Include="data\09-Breakout-Tiles.png" />
     <Image Include="data\1-Breakout-Tiles.png" />
+    <Image Include="data\1-Number-PNG.png" />
     <Image Include="data\10-Breakout-Tiles.png" />
     <Image Include="data\11-Breakout-Tiles.png" />
     <Image Include="data\12-Breakout-Tiles.png" />
@@ -176,6 +178,7 @@
     <Image Include="data\18-Breakout-Tiles.png" />
     <Image Include="data\19-Breakout-Tiles.png" />
     <Image Include="data\2-Breakout-Tiles.png" />
+    <Image Include="data\2-Number-PNG.png" />
     <Image Include="data\20-Breakout-Tiles.png" />
     <Image Include="data\21-Breakout-Tiles.png" />
     <Image Include="data\22-Breakout-Tiles.png" />
@@ -187,6 +190,7 @@
     <Image Include="data\28-Breakout-Tiles.png" />
     <Image Include="data\29-Breakout-Tiles.png" />
     <Image Include="data\3-Breakout-Tiles.png" />
+    <Image Include="data\3-Number-PNG.png" />
     <Image Include="data\30-Breakout-Tiles.png" />
     <Image Include="data\31-Breakout-Tiles.png" />
     <Image Include="data\32-Breakout-Tiles.png" />
@@ -198,6 +202,7 @@
     <Image Include="data\38-Breakout-Tiles.png" />
     <Image Include="data\39-Breakout-Tiles.png" />
     <Image Include="data\4-Breakout-Tiles.png" />
+    <Image Include="data\4-Number-PNG.png" />
     <Image Include="data\40-Breakout-Tiles.png" />
     <Image Include="data\41-Breakout-Tiles.png" />
     <Image Include="data\42-Breakout-Tiles.png" />
@@ -209,6 +214,7 @@
     <Image Include="data\48-Breakout-Tiles.png" />
     <Image Include="data\49-Breakout-Tiles.png" />
     <Image Include="data\5-Breakout-Tiles.png" />
+    <Image Include="data\5-Number-PNG.png" />
     <Image Include="data\50-Breakout-Tiles.png" />
     <Image Include="data\51-Breakout-Tiles.png" />
     <Image Include="data\52-Breakout-Tiles.png" />
@@ -220,15 +226,20 @@
     <Image Include="data\58-Breakout-Tiles.png" />
     <Image Include="data\59-Breakout-Tiles.png" />
     <Image Include="data\6-Breakout-Tiles.png" />
+    <Image Include="data\6-Number-PNG.png" />
     <Image Include="data\60-Breakout-Tiles.png" />
     <Image Include="data\61-Breakout-Tiles.png" />
     <Image Include="data\62-Breakout-Tiles.png" />
     <Image Include="data\63-Breakout-Tiles.png" />
     <Image Include="data\64-Breakout-Tiles.png" />
     <Image Include="data\7-Breakout-Tiles.png" />
+    <Image Include="data\7-Number-PNG.png" />
     <Image Include="data\8-Breakout-Tiles.png" />
+    <Image Include="data\8-Number-PNG.png" />
     <Image Include="data\9-Breakout-Tiles.png" />
+    <Image Include="data\9-Number-PNG.png" />
     <Image Include="data\blackBackground.png" />
+    <Image Include="data\gold-letter-X-T.png" />
     <Image Include="data\green-circle.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

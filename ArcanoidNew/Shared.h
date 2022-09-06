@@ -1,7 +1,14 @@
 #pragma once
 #include "Utils.h"
 
+//defined in ArcanoidNew.cpp
+
+//shared input variables
 namespace input {
+	extern int
+		WINDOW_HWIDTH,
+		WINDOW_HEIGHT;
+
 	extern bool
 		arrowKeyRightPressed,
 		arrowKeyLeftPressed,
@@ -10,6 +17,7 @@ namespace input {
 		mousePos;
 }
 
+//shared global start options
 namespace options {
 	extern bool
 		ballResting;
@@ -19,6 +27,7 @@ namespace options {
 		ballHealthDeafault,
 
 		points,
+		reward,
 
 		playgroundWidth,
 		playgroundHeight,

@@ -287,5 +287,38 @@
     <Image Include="data\green-circle.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="data\0-Number-PNG.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\1-Number-PNG.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\2-Number-PNG.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\3-Number-PNG.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\4-Number-PNG.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\5-Number-PNG.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\6-Number-PNG.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\7-Number-PNG.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\8-Number-PNG.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\9-Number-PNG.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data\gold-letter-X-T.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

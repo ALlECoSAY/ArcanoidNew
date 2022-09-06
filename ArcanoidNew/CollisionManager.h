@@ -1,12 +1,15 @@
 #pragma once
 #include "Utils.h"
 
+//only 2 outcomes are handled: vertical and horizontal reflectiom(like in original arcanoid)
 enum CollisionType
 {
 	HORIZONTAL,
 	VERTICAL,
 	NONE
 };
+
+//collided target
 enum CollisionItem
 {
 	TRAMPOLIN,

@@ -1,6 +1,5 @@
 #include "Framework.h"
 #include <iostream>
-#include <Windows.h>
 #include <list>
 #include <string> 
 #include <ctime>
@@ -15,10 +14,12 @@ using namespace std;
 
 
 
-#define WINDOW_WIDTH 1000
-#define WINDOW_HEIGHT 700
 
 namespace input {
+	int WINDOW_WIDTH,
+		WINDOW_HEIGHT;
+
+
 	bool
 		arrowKeyRightPressed = false,
 		arrowKeyLeftPressed = false,
@@ -35,12 +36,13 @@ namespace options {
 		ballHealthDeafault = 3,
 
 		points = 0,
+		reward = 20,
 
-		playgroundWidth = WINDOW_WIDTH-300,
-		playgroundHeight = WINDOW_HEIGHT,
+		playgroundWidth,
+		playgroundHeight,
 		
-		spriteMouseWidth = 20,
-		spriteMouseHeight = 20,
+		spriteMouseWidth = 15,
+		spriteMouseHeight = 15,
 
 		spriteTrampolineWidth = 120,
 		spriteTrampolineHeight = 30,
@@ -76,13 +78,18 @@ class MyFramework : public Framework {
 
 	Sprite
 		* mouseCursoreSprite,
+		* digit0, * digit1, * digit2, * digit3, * digit4, * digit5, * digit6, * digit7, * digit8, * digit9, * digitX,
 		* trampolineSprite, * trampolineSprite2, * trampolineSprite3, * trampolineSprite4,
 		* rightWallSprite,
 		* ballSprite,
 		* backgroundSprite,
 		* infoBackgroundSprite,
 		* heartSprite,
-		* savingWallSprite;
+		* savingWallSprite,
+		* smallerSizeSprite,
+		* biggerSizeSprite,
+		* fastSprite,
+		* slowSprite;
 
 	RectangleShape	
 		*trampolin,
@@ -109,15 +116,35 @@ public:
 	}
 
 	virtual bool Init() {
+		//digits
+		digit0 = createSprite(".\\data\\0-Number-PNG.png"); setSpriteSize(digit0, 28, 40);
+		digit1 = createSprite(".\\data\\1-Number-PNG.png"); setSpriteSize(digit1, 40, 40);
+		digit2 = createSprite(".\\data\\2-Number-PNG.png"); setSpriteSize(digit2, 40, 40);
+		digit3 = createSprite(".\\data\\3-Number-PNG.png"); setSpriteSize(digit3, 40, 40);
+		digit4 = createSprite(".\\data\\4-Number-PNG.png"); setSpriteSize(digit4, 40, 40);
+		digit5 = createSprite(".\\data\\5-Number-PNG.png"); setSpriteSize(digit5, 40, 40);
+		digit6 = createSprite(".\\data\\6-Number-PNG.png"); setSpriteSize(digit6, 40, 40);
+		digit7 = createSprite(".\\data\\7-Number-PNG.png"); setSpriteSize(digit7, 40, 40);
+		digit8 = createSprite(".\\data\\8-Number-PNG.png"); setSpriteSize(digit8, 40, 40);
+		digit9 = createSprite(".\\data\\9-Number-PNG.png"); setSpriteSize(digit9, 40, 40);
+		digitX = createSprite(".\\data\\gold-letter-X-T.png"); setSpriteSize(digitX, 40, 40);
+		
+		//effects info sprites
+		smallerSizeSprite = createSprite(".\\data\\46-Breakout-Tiles.png"); setSpriteSize(smallerSizeSprite, 100, 40);
+		biggerSizeSprite = createSprite(".\\data\\47-Breakout-Tiles.png"); setSpriteSize(biggerSizeSprite, 100, 40);
+		fastSprite = createSprite(".\\data\\42-Breakout-Tiles.png"); setSpriteSize(fastSprite, 100, 40);
+		slowSprite = createSprite(".\\data\\41-Breakout-Tiles.png"); setSpriteSize(slowSprite, 100, 40);
+
+
 		//background
 		backgroundSprite = createSprite(".\\data\\blackBackground.png");
 		setSpriteSize(backgroundSprite, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-		//hearts
+		//hearts health view
 		heartSprite = createSprite(".\\data\\60-Breakout-Tiles.png");
 		setSpriteSize(heartSprite, 50, 50);
 
-		//infobackground
+		//infobackground (right section)
 		infoBackgroundSprite = createSprite(".\\data\\29-Breakout-Tiles.png");
 		setSpriteSize(infoBackgroundSprite, WINDOW_WIDTH-playgroundWidth, WINDOW_HEIGHT*2);
 
@@ -126,8 +153,10 @@ public:
 		mouseCursoreSprite = createSprite(".\\data\\green-circle.png");
 		setSpriteSize(mouseCursoreSprite, spriteMouseWidth, spriteMouseHeight);
 
-		//trampoline
-		trampolineSprite = createSprite(".\\data\\56-Breakout-Tiles.png");
+		//trampoline (platform)
+		trampolineSprite = createSprite(".\\data\\50-Breakout-Tiles.png");
+		trampolineSprite2 = createSprite(".\\data\\51-Breakout-Tiles.png");
+		trampolineSprite3 = createSprite(".\\data\\52-Breakout-Tiles.png");
 		trampolin = new Trampoline(trampolinePos, trampolineVelocity, trampolineVelocityDirection, spriteTrampolineWidth, spriteTrampolineHeight, trampolineSprite);
 		
 		//ball
@@ -173,15 +202,14 @@ public:
 
 	//onWindowClose
 	virtual void Close() {
-
+		ballResting = true;
 	}
 
 	//rendering ticks
 	virtual bool Tick() {
-		
-
+		//deltatime calculation
 		deltaTime = tickTime;
-		tickTime = getTickCount();//time ticks
+		tickTime = getTickCount();
 		deltaTime = tickTime - deltaTime;
 		if (deltaTime > 100) { 
 			deltaTime = 20; 
@@ -193,14 +221,16 @@ public:
 		drawBackground();
 		updateTrampoline();
 
-		//loose condition
+		//applies change ball speed effect on some areas
 		areaVelocityEffect->Apply();
 		areaVelocityPurgeEffect->Purge();
 
+		//loose condition
 		if (updateBall() || ballHealthDeafault==0) {
 			cout << "\nYOU LOST";
 			return true;
 		}
+		//win condition
 		if (updateTiles()) {
 			cout << "\nYOU WON";
 			return true;
@@ -208,13 +238,9 @@ public:
 	
 		updateTemporalEffects();
 		updateHP();
-
+		updatePoints();
+		updateEffectsView();
 		updateCursor();
-
-		//cout << "\n" << deltaTime;
-
-
-
 
 		return false;
 	}
@@ -283,6 +309,22 @@ public:
 
 private:
 	void updateTrampoline() {
+		switch (deltaTime%3)
+		{
+			case 0:
+				trampolin->_sprite = trampolineSprite;
+				break;
+			case 1:
+				trampolin->_sprite = trampolineSprite2;
+				break;
+			case 2:
+				trampolin->_sprite = trampolineSprite3;
+				break;
+			default:
+				break;
+		}
+		trampolin->OnEffectChange();
+
 		if (arrowKeyRightPressed && !arrowKeyLeftPressed) {
 			trampolin->SetDirection(Vec2<float>(1, 0));
 		}
@@ -298,12 +340,9 @@ private:
 
 	bool updateBall() {
 		Vec2<float> initialPos = ball->_position;
-		
-
-
 		Vec2<float> delta = Vec2<float>(1000000, 1000000);
 		
-
+		//if ball is recently damaged or the start of level
 		if (ballResting) {
 			if (leftMouseButtonPressed) {
 				ball->OnCollide(VERTICAL, TRAMPOLIN, playgroundHeight - trampolin->_height - ball->_radius);
@@ -314,14 +353,15 @@ private:
 			ball->Update(deltaTime);
 			return false;
 		}
+
 		//loosecondition
 		if (!ball->Update(deltaTime)) {
 			return true;
 		}
 
-
-		//trampolin check
+		//trampolin collision check
 		CollisionType t = CollisionManager::areColliding(ball, trampolin);
+
 		if (t != NONE) {
 			float adhereBorderCoordinate;
 			switch (t) {
@@ -345,7 +385,8 @@ private:
 			trampolin->OnCollide(t, BALL, -1);
 			return false;
 		}
-		//savingWall
+		
+		//savingWall collision check
 		CollisionType td = CollisionManager::areColliding(ball, savingWall);
 		if (td != NONE) {
 			float adhereBorderCoordinate;
@@ -372,7 +413,7 @@ private:
 		}
 
 
-		//tile check
+		//tiles collision check
 		list<RectangleShape*> collidedTiles;
 		RectangleShape* closestTile;
 		for (RectangleShape* tile : tileList)
@@ -419,8 +460,8 @@ private:
 		}
 		return false;
 	}
-	bool updateTiles() {
 
+	bool updateTiles() {
 		//wincondition
 		if (tileList.size() == 0) {
 			return true;
@@ -432,7 +473,7 @@ private:
 			bool isActive = (*i)->Update(deltaTime);
 			if (!isActive)
 			{
-				points += 20;
+				points += reward;
 				cout <<"\nPoints: " << points;
 				destroySprite((*i)->_sprite);
 				tileList.erase(i++); 
@@ -474,7 +515,7 @@ private:
 	
 	void updateHP() {
 		for (int i = 0; i < ballHealthDeafault; i++)
-			drawSprite(heartSprite, WINDOW_WIDTH - 275 + i * 100, 150);
+			drawSprite(heartSprite, WINDOW_WIDTH - 275 + i * 100, 10);
 	}
 
 	void buyEffect() {
@@ -482,16 +523,69 @@ private:
 			else return;
 
 		int percent = 0 + rand() % (100 + 1);
-		if (percent <= 35) { applyTemporalEffect(new SizeChangeEffect(1.4, 20000, trampolin)); cout << "\n Ability: bigger"; return; }
-		if (percent <= 70) { applyTemporalEffect(new SizeChangeEffect(0.6, 20000, trampolin)); cout << "\n Ability: smaller"; return; }
-		if (savingWallActive) { applyTemporalEffect(new SizeChangeEffect(1.4, 20000, trampolin)); cout << "\n Ability: bigger"; return; }
-		if (percent <= 95) { savingWallActive = true; savingWall->_position.y = playgroundHeight + savingWall->_height/4; cout << "\n Ability: saving wall"; return; }//saving wall 
+		if (percent <= 40) { applyTemporalEffect(new SizeChangeEffect(1.4, 20000, trampolin)); cout << "\nAbility: bigger"; return; }
+		if (percent <= 70) { applyTemporalEffect(new SizeChangeEffect(0.6, 20000, trampolin)); cout << "\nAbility: smaller"; return; }
+		if (savingWallActive) { applyTemporalEffect(new SizeChangeEffect(1.4, 20000, trampolin)); cout << "\nAbility: bigger"; return; }
+		if (percent <= 90) { savingWallActive = true; savingWall->_position.y = playgroundHeight + savingWall->_height/4; cout << "\nAbility: saving wall"; return; }//saving wall 
 		//damage
-		cout << "\n Ability: -1 hp";
+		cout << "\nAbility: -1 hp";
 		ballHealthDeafault--;
 	}
 
+	void updatePoints() {
+		int d = points;
+		int i = 1;
+		while (d > 0) {
+			switch (d % 10)
+			{
+				case 0:
+					drawSprite(digit0, WINDOW_WIDTH - i * 40 - 50, 100);
+					break;
+				case 1:
+					drawSprite(digit1, WINDOW_WIDTH - i * 40 - 50, 100);
+					break;
+				case 2:
+					drawSprite(digit2, WINDOW_WIDTH - i * 40 - 50, 100);
+					break;
+				case 3:
+					drawSprite(digit3, WINDOW_WIDTH - i * 40 - 50, 100);
+					break;
+				case 4:
+					drawSprite(digit4, WINDOW_WIDTH - i * 40 - 50, 100);
+					break;
+				case 5:
+					drawSprite(digit5, WINDOW_WIDTH - i * 40 - 50, 100);
+					break;
+				case 6:
+					drawSprite(digit6, WINDOW_WIDTH - i * 40 - 50, 100);
+					break;
+				case 7:
+					drawSprite(digit7, WINDOW_WIDTH - i * 40 - 50, 100);
+					break;
+				case 8:
+					drawSprite(digit8, WINDOW_WIDTH - i * 40 - 50, 100);
+					break;
+				case 9:
+					drawSprite(digit9, WINDOW_WIDTH - i * 40 - 50, 100);
+					break;
+				default:
+					break;
+			}
+			i++;
+			d /= 10;
+		}
+	}
 
+	void updateEffectsView() {
+		if (ball->_velocityModifier < 1) { drawSprite(slowSprite, WINDOW_WIDTH-200,150); }
+		else if (ball->_velocityModifier > 1) { drawSprite(fastSprite, WINDOW_WIDTH - 200, 150); }
+		if(trampolin->_sizeModifier<1) { drawSprite(smallerSizeSprite, WINDOW_WIDTH - 200, 200); } 
+		else if (trampolin->_sizeModifier > 1) { drawSprite(biggerSizeSprite, WINDOW_WIDTH - 200, 200); }
+		
+			
+			
+			
+	}
 };
 
 
@@ -499,14 +593,32 @@ private:
 
 int main()
 {
-	srand(time(0));
 
-	int d = run(new MyFramework);
+	cout << "\ninput playground width and height,\nNote that the game area will be 300 pixels narrower:";
+	cin >> WINDOW_WIDTH >> WINDOW_HEIGHT;
+	if (WINDOW_WIDTH < 500) { cout << "\nminimal width is 500"; WINDOW_WIDTH = 500; }
+	playgroundWidth = WINDOW_WIDTH - 300;
+	playgroundHeight = WINDOW_HEIGHT;
 
+	for (;;) {
+		cout << "NEW GAME STARTED!";
+		ballHealthDeafault = 3;
+		trampolineVelocity = 0.5;
+		ballVelocity = trampolineVelocity * 1.6;
+		points = 0;
+		reward = 20;
 
+		srand(time(0));
+		int d;
+		d = run(new MyFramework);
+		while (ballHealthDeafault > 0) {
+			trampolineVelocity *= 1.2;
+			ballVelocity = trampolineVelocity * 1.6;
+			reward += 5;
+			cout << "\nNext level! Speed increased!\n";
+			d = run(new MyFramework);
+		}
+	}
 
-
-	cin >> d;
-	return d;
 };
 
