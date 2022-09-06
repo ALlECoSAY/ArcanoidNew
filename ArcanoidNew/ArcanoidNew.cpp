@@ -591,17 +591,27 @@ private:
 
 
 
-int main()
+int main(int argc, char** argv)
 {
+	if (argc == 3) {
+		string width = argv[1]; WINDOW_WIDTH = stoi(width);
+		string height = argv[2]; WINDOW_HEIGHT = stoi(height);
+	}
+	else {
+		cout << "Invalid or no arguments";
+		cout << "\nPlease, input playground width and height,\nNote that the game area will be 300 pixels narrower:\n\n";
+		cin >> WINDOW_WIDTH >> WINDOW_HEIGHT;
+	}
 
-	cout << "\ninput playground width and height,\nNote that the game area will be 300 pixels narrower:";
-	cin >> WINDOW_WIDTH >> WINDOW_HEIGHT;
-	if (WINDOW_WIDTH < 500) { cout << "\nminimal width is 500"; WINDOW_WIDTH = 500; }
+
+	
+	if (WINDOW_WIDTH < 500) { cout << "\nWrong width: minimal width is 500"; WINDOW_WIDTH = 500; }
+	if (WINDOW_HEIGHT < 400) { cout << "\nWrong height: minimal height is 400"; WINDOW_HEIGHT = 400; }
 	playgroundWidth = WINDOW_WIDTH - 300;
 	playgroundHeight = WINDOW_HEIGHT;
 
 	for (;;) {
-		cout << "NEW GAME STARTED!";
+		cout << "\nNEW GAME STARTED!\n";
 		ballHealthDeafault = 3;
 		trampolineVelocity = 0.5;
 		ballVelocity = trampolineVelocity * 1.6;
@@ -612,8 +622,8 @@ int main()
 		int d;
 		d = run(new MyFramework);
 		while (ballHealthDeafault > 0) {
-			trampolineVelocity *= 1.2;
-			ballVelocity = trampolineVelocity * 1.6;
+			trampolineVelocity *= 1.15;
+			ballVelocity = trampolineVelocity * 1.5;
 			reward += 5;
 			cout << "\nNext level! Speed increased!\n";
 			d = run(new MyFramework);

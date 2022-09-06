@@ -6,7 +6,7 @@
 //shared input variables
 namespace input {
 	extern int
-		WINDOW_HWIDTH,
+		WINDOW_WIDTH,
 		WINDOW_HEIGHT;
 
 	extern bool
