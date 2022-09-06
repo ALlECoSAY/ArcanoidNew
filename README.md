@@ -28,6 +28,6 @@ Abilities percentage chance per buy action:
 
 + 40% - increase platform width  
 + 30% - decrease platform width
-+ 20% - saving wall
-+ 10% - damage player (implies the presence of *health*, which is set to 3 for the game)
-Can't be more than 2 active saving walls at one moment.
++ 20% - saving wall. Can't be more than 2 active saving walls at one moment.
++ 10% - damage player (implies the presence of *health*, which is set to 3 for the game) Can't be damaged if saving wall is active
+
