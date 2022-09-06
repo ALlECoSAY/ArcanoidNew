@@ -11,9 +11,15 @@ namespace input {
 }
 
 namespace options {
+	extern bool
+		ballResting;
 	extern Vec2<int>
 		playgroundStartPosition;
 	extern int
+		ballHealthDeafault,
+
+		points,
+
 		playgroundWidth,
 		playgroundHeight,
 

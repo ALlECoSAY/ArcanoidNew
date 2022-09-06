@@ -15,7 +15,7 @@ using namespace std;
 
 
 
-#define WINDOW_WIDTH 1200
+#define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 700
 
 namespace input {
@@ -27,21 +27,30 @@ namespace input {
 		mousePos = Vec2<int>(0, 0);
 }
 namespace options {
+	bool 
+		ballResting = true;
 	Vec2<int>
 		playgroundStartPosition = Vec2<int>(0, 0);
 	int
-		playgroundWidth = WINDOW_WIDTH,
+		ballHealthDeafault = 3,
+
+		points = 0,
+
+		playgroundWidth = WINDOW_WIDTH-300,
 		playgroundHeight = WINDOW_HEIGHT,
 		
 		spriteMouseWidth = 20,
 		spriteMouseHeight = 20,
 
-		spriteTrampolineWidth = 200,
-		spriteTrampolineHeight = 50;
+		spriteTrampolineWidth = 120,
+		spriteTrampolineHeight = 30,
+
+		spriteTileWidth = 50,
+		spriteTileHeight = 20;
 
 	float
-		trampolineVelocity = 0.75,
-		ballVelocity = trampolineVelocity * 1.2;
+		trampolineVelocity = 0.5,
+		ballVelocity = trampolineVelocity * 1.6;
 }
 
 using namespace input;
@@ -49,6 +58,7 @@ using namespace options;
 
 
 class MyFramework : public Framework {
+	bool savingWallActive = false;
 
 	unsigned int
 		tickTime = 0,
@@ -56,24 +66,27 @@ class MyFramework : public Framework {
 
 	float
 		trampolineX = playgroundWidth / 2,
-		trampolineY = playgroundHeight - 25;
+		trampolineY = playgroundHeight - spriteTrampolineHeight/2;
 		
-
 	Vec2<float>
 		trampolinePos = Vec2<float>(trampolineX, trampolineY),
 		ballPos = Vec2<float>(trampolineX, trampolineY - spriteTrampolineHeight),
-		ballVelocityDirection = Vec2<float>(0, -1),
+		ballVelocityDirection = Vec2<float>(0, 0),
 		trampolineVelocityDirection = Vec2<float>(0, 0);
 
 	Sprite
 		* mouseCursoreSprite,
-		* trampolineSprite,
+		* trampolineSprite, * trampolineSprite2, * trampolineSprite3, * trampolineSprite4,
 		* rightWallSprite,
 		* ballSprite,
 		* backgroundSprite,
-		* infoBackgroundSprite;
+		* infoBackgroundSprite,
+		* heartSprite,
+		* savingWallSprite;
 
-	RectangleShape	*trampolin;
+	RectangleShape	
+		*trampolin,
+		*savingWall;
 	CircleShape *ball;
 	
 	list<RectangleShape*> tileList;
@@ -100,12 +113,16 @@ public:
 		backgroundSprite = createSprite(".\\data\\blackBackground.png");
 		setSpriteSize(backgroundSprite, WINDOW_WIDTH, WINDOW_HEIGHT);
 
+		//hearts
+		heartSprite = createSprite(".\\data\\60-Breakout-Tiles.png");
+		setSpriteSize(heartSprite, 50, 50);
+
 		//infobackground
-		infoBackgroundSprite = createSprite(".\\data\\blackBackground.png");
-		setSpriteSize(infoBackgroundSprite, WINDOW_WIDTH-playgroundWidth, WINDOW_HEIGHT);
+		infoBackgroundSprite = createSprite(".\\data\\29-Breakout-Tiles.png");
+		setSpriteSize(infoBackgroundSprite, WINDOW_WIDTH-playgroundWidth, WINDOW_HEIGHT*2);
 
 		//cursor
-		showCursor(true);
+		showCursor(false);
 		mouseCursoreSprite = createSprite(".\\data\\green-circle.png");
 		setSpriteSize(mouseCursoreSprite, spriteMouseWidth, spriteMouseHeight);
 
@@ -118,48 +135,32 @@ public:
 		ball = new BallCircle(ballPos , ballVelocity, ballVelocityDirection, 6, ballSprite);
 
 		//tiles
-		for (int i = 0; i < 13; i++) {
-			int random = 1 + (rand() % 20);
-			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
-			tileList.push_back(new Tile(Vec2<float>(100 + i * 60, 100), 0, Vec2<float>(0, 0), 60, 30, createSprite(s.c_str())));
+		int ds = playgroundWidth / spriteTileWidth;
+		for (int j = 0; j < 5; j+=2)
+		{
+			for (int i = 0; i < ds; i++) {
+				int random = 1 + (rand() % 20);
+				string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
+				tileList.push_back(new Tile(Vec2<float>(spriteTileWidth / 2 + i * spriteTileWidth, 100 + j * spriteTileHeight), 0, Vec2<float>(0, 0), spriteTileWidth, spriteTileHeight, createSprite(s.c_str())));
+			}
+			for (int i = 0; i < ds/2; i++) {
+				int random = 1 + (rand() % 20);
+				string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
+				tileList.push_back(new Tile(Vec2<float>(spriteTileWidth / 2 + 2*i * spriteTileWidth, 100 + (j+1) * spriteTileHeight), 0, Vec2<float>(0, 0), spriteTileWidth, spriteTileHeight, createSprite(s.c_str())));
+			}
 		}
-		for (int i = 0; i < 7; i++) {
-			int random = 1 + (rand() % 20);
-			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
-			tileList.push_back(new Tile(Vec2<float>(100 + i * 120, 130), 0, Vec2<float>(0, 0), 60, 30, createSprite(s.c_str())));
-		}
-		for (int i = 0; i < 13; i++) {
-			int random = 1 + (rand() % 20);
-			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
-			tileList.push_back(new Tile(Vec2<float>(100 + i * 60, 160), 0, Vec2<float>(0, 0), 60, 30, createSprite(s.c_str())));
-		}
-		for (int i = 0; i < 7; i++) {
-			int random = 1 + (rand() % 20);
-			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
-			tileList.push_back(new Tile(Vec2<float>(100 + i * 120, 190), 0, Vec2<float>(0, 0), 60, 30, createSprite(s.c_str())));
-		}
-		for (int i = 0; i < 13; i++) {
-			int random = 1 + (rand() % 20);
-			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
-			tileList.push_back(new Tile(Vec2<float>(100 + i * 60, 220), 0, Vec2<float>(0, 0), 60, 30, createSprite(s.c_str())));
-		}
-		for (int i = 0; i < 7; i++) {
-			int random = 1 + (rand() % 20);
-			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
-			tileList.push_back(new Tile(Vec2<float>(100 + i * 120, 250), 0, Vec2<float>(0, 0), 60, 30, createSprite(s.c_str())));
-		}
-		for (int i = 0; i < 13; i++) {
-			int random = 1 + (rand() % 20);
-			string s = ".\\data\\" + to_string(random) + "-Breakout-Tiles.png";
-			tileList.push_back(new Tile(Vec2<float>(100 + i * 60, 280), 0, Vec2<float>(0, 0), 60, 30, createSprite(s.c_str())));
-		}
+
+		//savingWall
+		savingWallSprite = createSprite(".\\data\\56-Breakout-Tiles.png");
+		savingWall = new Tile(Vec2<float>(playgroundWidth/2,-1000),0,Vec2<float>(0,0),WINDOW_WIDTH,100, savingWallSprite);
 		
-		//effects
-		list<Vec2<float>> dots;
+		
+		//permament effects
+		list<Vec2<float>> dots; //map 1.5, 0.5 ball speed modifiers
 		dots.push_back(Vec2<float>(100 + (rand() % (playgroundWidth - 100)), 100 + (rand() % (playgroundHeight - 100))));
 		dots.push_back(Vec2<float>(100 + (rand() % (playgroundWidth - 100)), 100 + (rand() % (playgroundHeight - 100))));
 
-		list<Vec2<float>> dotsPurge;
+		list<Vec2<float>> dotsPurge; //overlapping map of 1 ball speed
 		dotsPurge.push_back(Vec2<float>(100 + (rand() % (playgroundWidth - 100)), 100 + (rand() % (playgroundHeight - 100))));
 		dotsPurge.push_back(Vec2<float>(100 + (rand() % (playgroundWidth - 100)), 100 + (rand() % (playgroundHeight - 100))));
 
@@ -196,7 +197,7 @@ public:
 		areaVelocityEffect->Apply();
 		areaVelocityPurgeEffect->Purge();
 
-		if (updateBall()) {
+		if (updateBall() || ballHealthDeafault==0) {
 			cout << "\nYOU LOST";
 			return true;
 		}
@@ -206,6 +207,7 @@ public:
 		}
 	
 		updateTemporalEffects();
+		updateHP();
 
 		updateCursor();
 
@@ -227,9 +229,9 @@ public:
 
 		if (button == FRMouseButton::LEFT) leftMouseButtonPressed = !isReleased;
 		if (button == FRMouseButton::RIGHT) {
-			applyTemporalEffect(new SizeChangeEffect(1.4, 4000, trampolin));
+			if (!isReleased) buyEffect();
 		}
-		if (!isReleased) cout << "\nx:" << mousePos.x << "  y:" << mousePos.y;
+		
 	}
 
 	virtual void onKeyPressed(FRKey k) {
@@ -300,7 +302,18 @@ private:
 
 
 		Vec2<float> delta = Vec2<float>(1000000, 1000000);
+		
 
+		if (ballResting) {
+			if (leftMouseButtonPressed) {
+				ball->OnCollide(VERTICAL, TRAMPOLIN, playgroundHeight - trampolin->_height - ball->_radius);
+				ballResting = false;
+			}
+			ball->_position.x = trampolin->_position.x;
+			ball->_position.y = trampolin->_position.y - trampolin->_height/2 - ball->_radius;
+			ball->Update(deltaTime);
+			return false;
+		}
 		//loosecondition
 		if (!ball->Update(deltaTime)) {
 			return true;
@@ -332,6 +345,32 @@ private:
 			trampolin->OnCollide(t, BALL, -1);
 			return false;
 		}
+		//savingWall
+		CollisionType td = CollisionManager::areColliding(ball, savingWall);
+		if (td != NONE) {
+			float adhereBorderCoordinate;
+			switch (td) {
+			case HORIZONTAL:
+				if (ball->_position.x < savingWall->_position.x) adhereBorderCoordinate = savingWall->_position.x - savingWall->_width / 2 - ball->_radius;
+				else adhereBorderCoordinate = savingWall->_position.x + savingWall->_width / 2 + ball->_radius;
+
+				break;
+			case VERTICAL:
+
+				if (ball->_position.y < savingWall->_position.y) adhereBorderCoordinate = savingWall->_position.y - savingWall->_height / 2 - ball->_radius;
+				else adhereBorderCoordinate = savingWall->_position.y + savingWall->_height / 2 + ball->_radius;
+
+				break;
+			case NONE:
+				adhereBorderCoordinate = -1;
+			default:
+				break;
+			}
+			ball->OnCollide(td, TILE, adhereBorderCoordinate);
+			savingWallActive = false;
+			savingWall->_position.y = -10000;
+		}
+
 
 		//tile check
 		list<RectangleShape*> collidedTiles;
@@ -393,6 +432,8 @@ private:
 			bool isActive = (*i)->Update(deltaTime);
 			if (!isActive)
 			{
+				points += 20;
+				cout <<"\nPoints: " << points;
 				destroySprite((*i)->_sprite);
 				tileList.erase(i++); 
 			}
@@ -406,6 +447,8 @@ private:
 
 	void drawBackground() {
 		drawSprite(backgroundSprite, 0, 0);
+		if (savingWallActive) savingWall->Update(deltaTime);
+		drawSprite(infoBackgroundSprite, playgroundWidth, -300);
 	}
 
 	void applyTemporalEffect(ITemporalEffect* effect){
@@ -428,6 +471,26 @@ private:
 			}
 		}
 	}
+	
+	void updateHP() {
+		for (int i = 0; i < ballHealthDeafault; i++)
+			drawSprite(heartSprite, WINDOW_WIDTH - 275 + i * 100, 150);
+	}
+
+	void buyEffect() {
+		if (points >= 20) points-=20;
+			else return;
+
+		int percent = 0 + rand() % (100 + 1);
+		if (percent <= 35) { applyTemporalEffect(new SizeChangeEffect(1.4, 20000, trampolin)); cout << "\n Ability: bigger"; return; }
+		if (percent <= 70) { applyTemporalEffect(new SizeChangeEffect(0.6, 20000, trampolin)); cout << "\n Ability: smaller"; return; }
+		if (savingWallActive) { applyTemporalEffect(new SizeChangeEffect(1.4, 20000, trampolin)); cout << "\n Ability: bigger"; return; }
+		if (percent <= 95) { savingWallActive = true; savingWall->_position.y = playgroundHeight + savingWall->_height/4; cout << "\n Ability: saving wall"; return; }//saving wall 
+		//damage
+		cout << "\n Ability: -1 hp";
+		ballHealthDeafault--;
+	}
+
 
 };
 
@@ -441,6 +504,9 @@ int main()
 	int d = run(new MyFramework);
 
 
+
+
+	cin >> d;
 	return d;
 };
 

@@ -3,6 +3,8 @@
 #include "Framework.h"
 #include "CollisionManager.h"
 #include "Shared.h"
+
+
 using namespace input;
 using namespace options;
 
@@ -127,8 +129,6 @@ void CircleShape::OnCollide(CollisionType type, CollisionItem item, float adhere
 }
 void CircleShape::OnEffectChange() {
 
-
-
 }
 void CircleShape::SetDirection(Vec2<float> direction) {
 	_velocityDirecrion = direction;
@@ -145,13 +145,11 @@ void CircleShape::SetDirection(Vec2<float> direction) {
 Trampoline::Trampoline(Vec2<float> position, float velocity, Vec2<float> velocityDirecrion, int width, int height, Sprite* sprite) 
 	: RectangleShape::RectangleShape(position, velocity, velocityDirecrion, width, height, sprite) {}
 void Trampoline::OnCollide(CollisionType type, CollisionItem item, float adhereBorderCoordinate) {
-	std::cout << "\nTrampoline collided";
 	switch (item)
 	{
 	case TRAMPOLIN:
 		break;
 	case BORDER:
-		std::cout << "BORDER";
 		switch (type)
 		{
 		case HORIZONTAL:
@@ -177,17 +175,14 @@ void Trampoline::OnCollide(CollisionType type, CollisionItem item, float adhereB
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-//Ball
+//Ball old rectangular, deprecated
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 Ball::Ball(Vec2<float> position, float velocity, Vec2<float> velocityDirecrion, int width, int height, Sprite* sprite)
 	: RectangleShape::RectangleShape(position, velocity, velocityDirecrion, width, height, sprite) {}
 void Ball::OnCollide(CollisionType type, CollisionItem item, float adhereBorderCoordinate) {
-
-	std::cout << "\nBall collided ";
 	switch (item)
 	{
 	case TRAMPOLIN:
-		std::cout << "TRAMPOLIN";
 		switch (type) {
 		case HORIZONTAL:
 			_position.x = adhereBorderCoordinate;
@@ -211,7 +206,6 @@ void Ball::OnCollide(CollisionType type, CollisionItem item, float adhereBorderC
 		}
 		break;
 	case BORDER:
-		std::cout << "BORDER";
 		switch (type)
 		{
 			case HORIZONTAL:
@@ -228,10 +222,8 @@ void Ball::OnCollide(CollisionType type, CollisionItem item, float adhereBorderC
 		}
 		break;
 	case BALL:
-		std::cout << "BALL";
 		break;
 	case TILE:
-		std::cout << "TILE";
 		switch (type)
 		{
 		case HORIZONTAL:
@@ -272,14 +264,14 @@ bool Tile::Update(unsigned int timeTicks) {
 //Ball
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 BallCircle::BallCircle(Vec2<float> position, float velocity, Vec2<float> velocityDirecrion, int radius, Sprite* sprite)
-	: CircleShape::CircleShape(position, velocity, velocityDirecrion, radius, sprite) {}
+	: CircleShape::CircleShape(position, velocity, velocityDirecrion, radius, sprite) { 
+	_health = ballHealthDeafault;
+}
 void BallCircle::OnCollide(CollisionType type, CollisionItem item, float adhereBorderCoordinate) {
 
-	std::cout << "\nBall collided ";
 	switch (item)
 	{
 	case TRAMPOLIN:
-		std::cout << "TRAMPOLIN";
 		switch (type) {
 		case HORIZONTAL:
 			_position.x = adhereBorderCoordinate;
@@ -303,7 +295,6 @@ void BallCircle::OnCollide(CollisionType type, CollisionItem item, float adhereB
 		}
 		break;
 	case BORDER:
-		std::cout << "BORDER";
 		switch (type)
 		{
 		case HORIZONTAL:
@@ -311,6 +302,7 @@ void BallCircle::OnCollide(CollisionType type, CollisionItem item, float adhereB
 			_velocityDirecrion.x = -_velocityDirecrion.x;
 			break;
 		case VERTICAL:
+			if (_position.y > _radius) { _health--; ballHealthDeafault--; ballResting = true; }
 			_position.y = adhereBorderCoordinate;
 			_velocityDirecrion.y = -_velocityDirecrion.y;
 			break;
@@ -320,10 +312,8 @@ void BallCircle::OnCollide(CollisionType type, CollisionItem item, float adhereB
 		}
 		break;
 	case BALL:
-		std::cout << "BALL";
 		break;
 	case TILE:
-		std::cout << "TILE";
 		switch (type)
 		{
 		case HORIZONTAL:
@@ -345,8 +335,7 @@ void BallCircle::OnCollide(CollisionType type, CollisionItem item, float adhereB
 
 }
 bool BallCircle::Update(unsigned int timeTicks) {
-	if (_position.y >= playgroundHeight - _radius) 
-		if(--_health < 1) return false;
+	if(_health < 1) return false;
 	CircleShape::Update(timeTicks);
 	return true;
 }

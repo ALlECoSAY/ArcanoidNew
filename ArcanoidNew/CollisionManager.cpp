@@ -51,33 +51,6 @@ CollisionType CollisionManager::areColliding(RectangleShape* r, CircleShape* c)
 	return CollisionManager::areColliding(c,r);
 };
 
-//template<>
-//CollisionType CollisionManager::areColliding(CircleShape* c1, CircleShape* c2)
-//{
-//	return NONE;
-//};
-//
-//template<>
-//CollisionType CollisionManager::areColliding(CircleShape* c, RectangleShape* r2)
-//{
-//
-//	return NONE;
-//};
-//
-//template<>
-//CollisionType CollisionManager::areColliding(RectangleShape* r, CircleShape* c)
-//{
-//	return CollisionManager::areColliding(r, c);
-//};
-//
-//
-
-
-
-
-
-
-
 
 
 template<>
@@ -100,13 +73,3 @@ CollisionType CollisionManager::isCollidingBorders(CircleShape* c) {
 	return NONE;
 };
 
-//template<>
-//CollisionType CollisionManager::isCollidingBorders(CircleShape* c) {
-//	if (c->_x - c->_radius / 2 < xPlayground)						return HORIZONTAL;
-//	if (c->_x + c->_radius / 2 > xPlayground + playgroundWidth)		return HORIZONTAL;
-//	if (c->_y - c->_radius / 2 < yPlayground)						return VERTICAL;
-//	if (c->_y + c->_radius / 2 > yPlayground + playgroundHeight)	return VERTICAL;
-//
-//	return NONE;
-//};
-//
