@@ -1,6 +1,6 @@
 # ArcanoidNew
 
-[Game zip GoogleDrive](https://drive.google.com/file/d/1fWzluTVWSZh634rYb1p-8l0f7dNGVnMX/view?usp=sharing)
+[Game zip GoogleDrive](https://drive.google.com/file/d/1AYmGFwyVIcolAikkhWMLh5tiMeOJgApc/view?usp=sharing)
 
 ## launch prerequisites:
 win64
